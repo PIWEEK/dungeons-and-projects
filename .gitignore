@@ -2,6 +2,14 @@
 __pycache__/
 *.py[cod]
 
+# File backups and locks
+*.swp
+*~
+.~lock.*
+
+# Ctags database
+tags
+
 # C extensions
 *.so
 
