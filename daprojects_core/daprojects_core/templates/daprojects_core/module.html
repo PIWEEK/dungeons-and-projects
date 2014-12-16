@@ -1,0 +1,28 @@
+<html>
+    <body>
+        <h1>Módulo {{ module.path }}</h1>
+        {% if module.issues.all %}
+            <ul>
+                {% for issue in module.issues.all %}
+                    <li>{{ issue.kind.name}} - {{ issue.file_name }} - {{ issue.description }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        {% if module.get_children %}
+            <ul>
+                {% for child_module in module.get_children %}
+                    <li>
+                        <a href="{% url 'module' project_id=project.id module_id=child_module.id %}">{{ child_module.slug }}</a>
+                        {% if child_module.nested_issues %}
+                            <ul>
+                                {% for issue in child_module.nested_issues %}
+                                    <li>{{ issue.kind.name}} - {{ issue.file_name }} - {{ issue.description }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </body>
+</html>

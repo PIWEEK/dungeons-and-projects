@@ -1,0 +1,11 @@
+<html>
+    <body>
+        <h1>Lista de proyectos</h1>
+        <dl>
+            {% for project in projects %}
+                <dt><a href="{% url 'project' project_id=project.id %}">{{ project.name }}</a></dt>
+                <dd>{{ project.description }}</dd>
+            {% endfor %}
+        </dl>
+    </body>
+</html>

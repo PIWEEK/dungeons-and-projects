@@ -28,6 +28,9 @@ class Project(models.Model):
     def __str__(self):
         return _('project "{}"').format(self.name)
 
+    def first_level_modules(self):
+        return self.modules.filter(level=0)
+
 
 class Module(MPTTModel):
     project = models.ForeignKey('Project',
