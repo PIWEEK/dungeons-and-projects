@@ -121,3 +121,35 @@ class Issue(models.Model):
     def __str__(self):
         return _('Issue {} - {}').format(self.module.slug, self.id)
 
+
+class Directory(MPTTModel):
+    project = models.ForeignKey('Project',
+        blank=False, null=False,
+        related_name='directories',
+        verbose_name=_('Project')
+    )
+    parent = TreeForeignKey('self',
+        blank=True, null=True,
+        related_name='children',
+        verbose_name=_('Parent')
+    )
+    slug = models.SlugField(
+        max_length=255, blank=False, null=False,
+        verbose_name=_('Slug')
+    )
+    modules = models.ManyToManyField('Module',
+        blank=True, null=True,
+        verbose_name=_('Modules')
+    )
+
+    class Meta:
+        verbose_name = _('Directory')
+        verbose_name_plural = _('Directories')
+        ordering = ('project', 'slug',)
+
+    class MPTTMeta:
+        order_insertion_by = ('project', 'slug',)
+
+    def __str__(self):
+        return self.slug
+

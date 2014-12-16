@@ -14,6 +14,7 @@ class IssueInline(admin.TabularInline):
     model = Issue
     extra = 1
 
+
 class ModuleAdmin(MPTTModelAdmin):
     model = Module
     prepopulated_fields = {'slug': ('name',)}
@@ -31,4 +32,16 @@ class IssueKindAdmin(admin.ModelAdmin):
     model = IssueKind
 
 admin.site.register(IssueKind, IssueKindAdmin)
+
+
+class DirectoryAdmin(MPTTModelAdmin):
+    model = Directory
+    list_display = ('slug', 'level', 'project_name')
+    list_filter = ('project__name', 'level')
+    filter_horizontal = ('modules',)
+
+    def project_name(self, obj):
+        return obj.project.name
+
+admin.site.register(Directory, DirectoryAdmin)
 
