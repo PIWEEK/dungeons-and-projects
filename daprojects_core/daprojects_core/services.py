@@ -1,4 +1,5 @@
 import os
+import re
 
 from . import models
 
@@ -30,3 +31,51 @@ def _init_project_step(project, parent_module, parent_dir, path, depth):
             directory.modules.add(module)
             _init_project_step(project, module, directory, os.path.join(path, entry), depth - 1)
 
+
+def sync_issues_with_filesystem(project, root_path):
+    for module in project.modules.all():
+        # TODO: synchronize instead of replacing
+        module.issues.all().delete()
+        for directory in module.directories.all():
+            for filename in os.listdir(os.path.join(root_path, directory.path)):
+                _analyze_file(module, os.path.join(root_path, directory.path, filename))
+
+
+def _analyze_file(module, file_path):
+    root, ext = os.path.splitext(file_path)
+    if ext == '.py':
+        _analyze_file_python(module, file_path)
+    elif ext == '.coffee':
+        _analyze_file_coffeescript(module, file_path)
+    elif ext == '.html':
+        _analyze_file_html(module, file_path)
+
+
+def _analyze_file_python(module, file_path):
+    _analyze_file_regex(module, file_path, ['# *{}:? *(.*)'])
+
+
+def _analyze_file_coffeescript(module, file_path):
+    _analyze_file_regex(module, file_path, ['# *{}:? *(.*)'])
+
+
+def _analyze_file_html(module, file_path):
+    _analyze_file_regex(module, file_path, ['<!-- *{}:? *(.*) -->', '{{# *{}:? *(.*) *#}}', '{{% comment %}} *(.*) *{{% endcomment %}}'])
+
+
+def _analyze_file_regex(module, file_path, regexps):
+    file = open(file_path, 'r')
+    content = file.read()
+    for regexp in regexps:
+        for issue_kind in models.IssueKind.objects.all():
+            for match in re.finditer(regexp.format(issue_kind.name), content):
+                issue = models.Issue.objects.create(
+                    module=module,
+                    file_name=os.path.basename(file_path),
+                    file_line=None, # TODO: calculate file line
+                    description=match.group(1),
+                    kind=issue_kind,
+                    size=3,
+                )
+                # TODO: use callback to send the event to the caller
+                print(str(issue))

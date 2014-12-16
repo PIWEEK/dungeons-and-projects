@@ -2,6 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 import itertools
+import os
 
 from mptt.models import MPTTModel, TreeForeignKey
 
@@ -61,7 +62,13 @@ class Module(MPTTModel):
         order_insertion_by = ('project', 'slug',)
 
     def __str__(self):
-        return self.slug
+        return self.path
+
+    @property
+    def path(self):
+        return os.path.join(
+            *[dir.slug for dir in self.get_ancestors(include_self=True)]
+        )
 
     def nested_issues(self):
         return itertools.chain(*[model.issues.all() for model in self.get_descendants(include_self=True)])
@@ -88,9 +95,13 @@ class Issue(models.Model):
         related_name='issues',
         verbose_name=_('Module')
     )
-    name = models.CharField(
-        max_length=255, blank=True, null=False,  # issues may have no name
-        verbose_name=_('Name')
+    file_name = models.CharField(
+        max_length=255, blank=True, null=False,  # issues may have no file
+        verbose_name=_('File name')
+    )
+    file_line = models.IntegerField(
+        blank=True, null=True,
+        verbose_name=_('File line')
     )
     description = models.TextField(
         blank=True, null=False,
@@ -119,7 +130,7 @@ class Issue(models.Model):
         ordering = ('module', 'id')
 
     def __str__(self):
-        return _('Issue {} - {}').format(self.module.slug, self.id)
+        return _('Issue {} - {}').format(self.module.path, self.kind.name)
 
 
 class Directory(MPTTModel):
@@ -139,6 +150,7 @@ class Directory(MPTTModel):
     )
     modules = models.ManyToManyField('Module',
         blank=True, null=True,
+        related_name='directories',
         verbose_name=_('Modules')
     )
 
@@ -152,4 +164,10 @@ class Directory(MPTTModel):
 
     def __str__(self):
         return self.slug
+
+    @property
+    def path(self):
+        return os.path.join(
+            *[dir.slug for dir in self.get_ancestors(include_self=True)]
+        )
 
