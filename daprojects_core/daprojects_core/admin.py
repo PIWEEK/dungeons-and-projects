@@ -21,3 +21,9 @@ class ModuleAdmin(MPTTModelAdmin):
 
 admin.site.register(Module, ModuleAdmin)
 
+
+class IssueKindAdmin(admin.ModelAdmin):
+    model = IssueKind
+
+admin.site.register(IssueKind, IssueKindAdmin)
+
