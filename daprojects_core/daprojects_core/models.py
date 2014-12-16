@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
+import itertools
+
 from mptt.models import MPTTModel, TreeForeignKey
 
 class Project(models.Model):
@@ -60,6 +62,9 @@ class Module(MPTTModel):
 
     def __str__(self):
         return self.slug
+
+    def nested_issues(self):
+        return itertools.chain(*[model.issues.all() for model in self.get_descendants(include_self=True)])
 
 
 class IssueKind(models.Model):

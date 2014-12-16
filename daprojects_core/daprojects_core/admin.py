@@ -10,11 +10,16 @@ class ProjectAdmin(admin.ModelAdmin):
 admin.site.register(Project, ProjectAdmin)
 
 
+class IssueInline(admin.TabularInline):
+    model = Issue
+    extra = 1
+
 class ModuleAdmin(MPTTModelAdmin):
     model = Module
     prepopulated_fields = {'slug': ('name',)}
     list_display = ('slug', 'level', 'project_name')
     list_filter = ('project__name', 'level')
+    inlines = (IssueInline,)
 
     def project_name(self, obj):
         return obj.project.name
