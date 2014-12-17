@@ -1,11 +1,35 @@
-<html>
-    <body>
-        <h1>Lista de proyectos</h1>
-        <dl>
-            {% for project in projects %}
-                <dt><a href="{% url 'project' project_id=project.id %}">{{ project.name }}</a></dt>
-                <dd>{{ project.description }}</dd>
-            {% endfor %}
-        </dl>
-    </body>
-</html>
+{% extends "daprojects_webapp/base.html" %}
+
+{% load i18n staticfiles %}
+
+{% block content %}
+    <div id="content_top"></div>
+
+    <div id="content_bg_repeat">
+        <div class="gallery">
+            <div class="gallery_bot">
+                <h1>Lista de proyectos</h1>
+                <div class="row">
+                    {% for project, map in projects_and_maps %}
+                        <div class="box_img2">
+                             <div class="g_size">
+                                 <a href="{% url 'project' project_id=project.id %}" class="pirobox_gal1" title="{{ project.name }}">
+                                     <img src="{% static map.thumbnail_path %}" alt="image of {{ project.name }}" />
+                                 </a>
+                             </div>
+                             <h3>{{ project.name }}</h3>
+                             {{ project.description }}
+                        </div>
+                    {% endfor %}
+                </div>
+                <div style="height:35px">
+                    <a class="gal_num" href="#">1</a>
+                    <a class="gal_num" href="#">2</a>
+                    <a class="gal_num" href="#">3</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="content_bottom"></div>
+{% endblock %}

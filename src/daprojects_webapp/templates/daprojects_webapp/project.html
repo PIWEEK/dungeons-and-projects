@@ -1,6 +1,30 @@
-<html>
-    <body>
+{% extends "daprojects_webapp/base.html" %}
+
+{% load i18n staticfiles %}
+
+{% block content %}
+    <div id="content_top"></div>
+
+    <div id="content_bg_repeat">
         <h1>Proyecto {{ project.name }}</h1>
+        <div class="big_map">
+            <img src="{% static map.image_path %}" />
+            {% for module, placeholder in modules_and_placeholders %}
+                <div class="city" style="position: absolute; left: {{ placeholder.x }}px; top: {{ placeholder.y }}px;">
+                    <a href="{% url 'module' project_id=project.id module_id=module.id %}">
+                        <img class="city_image" src="{% static placeholder.image_path %}" />
+                        <p class="city_name">{% if module.name %}{{ module.name }}{% else %}{{ module.slug }}{% endif %}</p>
+                        {% if module.nested_issues_count %}
+                            <p class="city_status">
+                                <img src="{% static 'images/maps/monster.png' %}">
+                                <span>x{{ module.nested_issues_count }}</span>
+                            </p>
+                        {% endif %}
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+        {% comment %}
         <ul>
             {% for module in project.first_level_modules %}
                 <li>
@@ -15,5 +39,9 @@
                 </li>
             {% endfor %}
         </ul>
-    </body>
-</html>
+        {% endcomment %}
+    </div>
+
+    <div id="content_bottom"></div>
+{% endblock %}
+

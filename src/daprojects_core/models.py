@@ -76,6 +76,9 @@ class Module(MPTTModel):
     def nested_issues(self):
         return itertools.chain(*[model.issues.all() for model in self.get_descendants(include_self=True)])
 
+    def nested_issues_count(self):
+        return len(list(self.nested_issues()))
+
 
 class IssueKind(models.Model):
     name = models.CharField(
