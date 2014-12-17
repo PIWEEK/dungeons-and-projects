@@ -1,0 +1,7 @@
+"""
+Template to configure the local Django settings of this installation.
+Copy to local.py and configure as needed.
+"""
+
+from .development import *
+

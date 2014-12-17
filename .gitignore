@@ -62,5 +62,5 @@ docs/_build/
 target/
 
 # Project specific files
-
+**/*/settings/local.py
 

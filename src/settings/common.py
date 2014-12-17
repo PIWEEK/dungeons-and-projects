@@ -1,5 +1,5 @@
 """
-Django settings for daprojects_core project.
+Default Django settings for dungeons_and_projects.
 
 For more information on this file, see
 https://docs.djangoproject.com/en/1.7/topics/settings/
@@ -8,10 +8,14 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.7/ref/settings/
 """
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 import os
-BASE_DIR = os.path.dirname(os.path.dirname(__file__))
 
+# Directory where manage.py is located (base dir of python path)
+BASE_DIR = os.path.abspath(os.path.dirname(os.path.dirname(__file__)))
+
+# Root path of the project, where you can find resources other than
+# source code (for example, media files)
+ROOT_DIR = os.path.abspath(os.path.dirname(BASE_DIR))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/
@@ -41,6 +45,7 @@ INSTALLED_APPS = (
     'mptt',
     # Local
     'daprojects_core',
+    'daprojects_webapp',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -53,9 +58,9 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = 'daprojects_core.urls'
+ROOT_URLCONF = 'daprojects_webapp.urls'
 
-WSGI_APPLICATION = 'daprojects_core.wsgi.application'
+WSGI_APPLICATION = 'daprojects_webapp.wsgi.application'
 
 
 # Database

@@ -1,10 +1,10 @@
 from django.views.generic.base import TemplateView
 from django.shortcuts import get_object_or_404
 
-from . import models
+from daprojects_core import models
 
 class HomeView(TemplateView):
-    template_name = 'daprojects_core/home.html'
+    template_name = 'daprojects_webapp/home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -13,7 +13,7 @@ class HomeView(TemplateView):
 
 
 class ProjectView(TemplateView):
-    template_name = 'daprojects_core/project.html'
+    template_name = 'daprojects_webapp/project.html'
 
     def get_context_data(self, project_id=None, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -23,7 +23,7 @@ class ProjectView(TemplateView):
 
 
 class ModuleView(TemplateView):
-    template_name = 'daprojects_core/module.html'
+    template_name = 'daprojects_webapp/module.html'
 
     def get_context_data(self, project_id=None, module_id=None, **kwargs):
         context = super().get_context_data(**kwargs)
