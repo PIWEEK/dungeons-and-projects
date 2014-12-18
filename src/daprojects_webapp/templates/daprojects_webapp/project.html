@@ -6,7 +6,10 @@
     <div id="content_top"></div>
 
     <div id="content_bg_repeat">
-        <h1><a href="{% url 'project' project_id=project.id %}">{{ project.name }}</a></h1>
+        <h1>
+            <a href="{% url 'home' %}">{% trans 'Projects' %}</a> /
+            <a href="{% url 'project' project_id=project.id %}">{{ project.name }}</a>
+        </h1>
         <div class="big_map">
             <img src="{% static map.image_path %}" />
             {% for module, placeholder in modules_and_placeholders %}

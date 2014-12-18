@@ -1,5 +1,6 @@
 import os
 import re
+import random
 
 from . import models
 
@@ -75,7 +76,7 @@ def _analyze_file_regex(module, file_path, regexps):
                     file_line=None, # TODO: calculate file line
                     description=match.group(1),
                     kind=issue_kind,
-                    size=3,
+                    size=random.randint(1, 5), # TODO: read size from comment text
                 )
                 # TODO: use callback to send the event to the caller
                 print(str(issue))

@@ -8,6 +8,7 @@
 
     <div id="content_bg_repeat_expanded">
         <h1>
+            <a href="{% url 'home' %}">{% trans 'Projects' %}</a> /
             <a href="{% url 'project' project_id=project.id %}">{{ project.name }}</a> /
             <a href="{% url 'module' project_id=project.id module_id=module.id %}">{{ module.path }}</a>
         </h1>
@@ -15,16 +16,41 @@
             <div class="city_surface"></div>
             <div class="city_underground"></div>
             <div class="city_buildings">
-                {% for child_module in module.get_children %}
+                {% if module.issues.all %}
                     <div class="city_building">
                         <a href="#">
-                            <img src="{% static 'images/city/building_'%}{% cycle '1' '2' '3' %}.png" />
+                            <img src="{% static 'images/city/building_'%}2.png" /><!-- TODO: define module size to choose building type -->
+                            <div class="building_name"><p>{% if module.name %}{{ module.name }}{% else %}{{ module.slug }}{% endif %}</p></div>
+                        </a>
+                        <div class="dungeon_wrapper">
+                            <div class="dungeon">
+                                <div class="dungeon_left"></div>
+                                <div class="dungeon_body">
+                                    {% for issue in module.nested_issues %}
+                                        <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}-{{ issue.size }}.png"
+                                             title="{{ issue.kind.name }} [{{ issue.size }}] - {{ issue.description }}" />
+                                    {% endfor %}
+                                </div>
+                                <div class="dungeon_right"></div>
+                            </div>
+                        </div>
+                    </div>
+                {% endif %}
+                {% for child_module in module.get_children|slice:'5' %}
+                    <div class="city_building">
+                        <a href="#">
+                            <img src="{% static 'images/city/building_'%}{% cycle '1' '2' '3' %}.png" /><!-- TODO: define module size to choose building type -->
                             <div class="building_name"><p>{% if child_module.name %}{{ child_module.name }}{% else %}{{ child_module.slug }}{% endif %}</p></div>
                         </a>
                         <div class="dungeon_wrapper">
                             <div class="dungeon">
                                 <div class="dungeon_left"></div>
-                                <div class="dungeon_body"></div>
+                                <div class="dungeon_body">
+                                    {% for issue in child_module.nested_issues %}
+                                        <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}-{{ issue.size }}.png"
+                                             title="{{ issue.kind.name }} [{{ issue.size }}] - {{ issue.description }}" />
+                                    {% endfor %}
+                                </div>
                                 <div class="dungeon_right"></div>
                             </div>
                         </div>

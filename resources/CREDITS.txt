@@ -6,6 +6,10 @@ background.zip
   Large nature background from http://opengameart.org/content/large-nature-background
   Julien / OpenGameArt.org
 
+DAGRONS5_0.png
+  Dragon sprites from http://opengameart.org/content/rpg-enemies-11-dragons
+  Redshrike / OpenGameArt.org
+
 E1_32x32.png
   Modular house from http://opengameart.org/content/32x32-house
   Edarap / OpenGameArt.org
@@ -33,6 +37,14 @@ metamorph_greenex.zip
 PlatformerTiles.zip
   Surface and subterranean tiles from http://opengameart.org/content/platformer-tiles-0
   TheValar / OpenGameArt.org
+
+rpgcritters2.png
+  Monster sprites from http://opengameart.org/content/10-basic-rpg-enemies
+  Redshrike / OpenGameArt.org
+
+threeformsPJ2_0.png
+  Boss sprite from http://opengameart.org/content/3-form-rpg-boss-harlequin-epicycle
+  Redshrike / OpenGameArt.org
 
 tileset.png
   Tileset cities from http://opengameart.org/content/worldmapoverworld-tileset

@@ -878,7 +878,8 @@ margin-bottom: -30px;
 
 .city_skyline .city_building .building_name {
     position: absolute;
-    bottom: -25px;
+    bottom: 70px;
+    /*bottom: -25px;*/ /* NOTE: see what looks better */
     left: 0;
     width: 100%;
     z-index: 10;
@@ -895,7 +896,6 @@ margin-bottom: -30px;
 
 .city_skyline .city_building .dungeon_wrapper {
     position: absolute;
-    bottom: -92px;
     left: 0;
     width: 100%;
     z-index: 1;
@@ -905,22 +905,21 @@ margin-bottom: -30px;
     margin: 0 auto;
     width: 100%;
     display: flex;
+    position: relative; /* FIXME: when the other fixme up there is done, remove these two lines */
+    top: -4px;
 }
 
 .city_skyline .city_building .dungeon_left {
-    height: 96px;
     min-width: 32px;
     background: url(../images/city/dungeon_left.png) top left repeat;
 }
 
 .city_skyline .city_building .dungeon_body {
-    height: 96px;
     width: 100%;
     background: url(../images/city/dungeon_body.png) top left repeat;
 }
 
 .city_skyline .city_building .dungeon_right {
-    height: 96px;
     min-width: 32px;
     background: url(../images/city/dungeon_right.png) top left repeat;
 }

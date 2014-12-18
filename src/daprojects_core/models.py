@@ -136,7 +136,7 @@ class Issue(models.Model):
         ordering = ('module', 'id')
 
     def __str__(self):
-        return _('Issue {} - {}').format(self.module.path, self.kind.name)
+        return _('Issue {} - {} {}').format(self.module.path, self.size, self.kind.name)
 
 
 class Directory(MPTTModel):
