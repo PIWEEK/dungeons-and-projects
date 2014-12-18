@@ -30,10 +30,14 @@ def _init_project_step(project, parent_module, parent_dir, path, depth):
                 slug = entry,
             )
             directory.modules.add(module)
+            print(str(module)) # TODO: use callback to send the event to the caller
             _init_project_step(project, module, directory, os.path.join(path, entry), depth - 1)
 
 
 def sync_issues_with_filesystem(project, root_path):
+    '''
+    Search the filesystem for specific comments (see kinds) and create issues for them.
+    '''
     for module in project.modules.all():
         # TODO: synchronize instead of replacing
         module.issues.all().delete()
@@ -78,5 +82,4 @@ def _analyze_file_regex(module, file_path, regexps):
                     kind=issue_kind,
                     size=random.randint(1, 5), # TODO: read size from comment text
                 )
-                # TODO: use callback to send the event to the caller
-                print(str(issue))
+                print(str(issue)) # TODO: use callback to send the event to the caller
