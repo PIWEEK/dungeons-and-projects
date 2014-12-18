@@ -839,14 +839,14 @@ margin-bottom: -30px;
 
 .city_skyline {
     background: url(../images/city/city_background.png) top center no-repeat;
-    height: 800px;
+    height: 672px;
     position: relative;
     overflow: auto;
 }
 
 .city_skyline .city_surface {
     position: absolute;
-    bottom: 256px;
+    bottom: 128px;
     left: 0px;
     height: 128px;
     width: 100%;
@@ -857,14 +857,14 @@ margin-bottom: -30px;
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 256px;
+    height: 128px;
     width: 100%;
     background: url(../images/city/ground_underground.png) top left repeat;
 }
 
 .city_skyline .city_buildings {
     position: absolute;
-    bottom: 384px;
+    bottom: 256px;
     left: 0;
     width: 100%;
 }
