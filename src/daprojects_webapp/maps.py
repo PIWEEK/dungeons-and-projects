@@ -26,6 +26,16 @@ _maps = [
         image_path = 'images/maps/world-2.jpg',
         thumbnail_path = 'images/maps/world-2-thumbnail.jpg',
         placeholders = [
+            Placeholder('images/maps/city-1.png', 178, 615),
+            Placeholder('images/maps/city-2.png', 677, 413),
+            Placeholder('images/maps/city-3.png', 165, 61),
+            Placeholder('images/maps/city-4.png', 595, 31),
+            Placeholder('images/maps/city-1.png', 369, 407),
+            Placeholder('images/maps/city-2.png', 564, 175),
+            Placeholder('images/maps/city-3.png', 374, 540),
+            Placeholder('images/maps/city-4.png', 396, 170),
+            Placeholder('images/maps/city-1.png', 755, 478),
+            Placeholder('images/maps/city-2.png', 404, 640),
         ],
     ),    Map(
         image_path = 'images/maps/world-3.jpg',
