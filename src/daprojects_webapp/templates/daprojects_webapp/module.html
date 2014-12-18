@@ -19,7 +19,7 @@
                     <div class="city_building">
                         <a href="#">
                             <img src="{% static 'images/city/building_'%}{% cycle '1' '2' '3' %}.png" />
-                            {#<p class="building_name">{% if child_module.name %}{{ child_module.name }}{% else %}{{ child_module.slug }}{% endif %}</p>#}
+                            <div class="building_name"><p>{% if child_module.name %}{{ child_module.name }}{% else %}{{ child_module.slug }}{% endif %}</p></div>
                         </a>
                     </div>
                 {% endfor %}

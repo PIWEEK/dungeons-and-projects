@@ -872,11 +872,22 @@ margin-bottom: -30px;
 .city_skyline .city_building {
     margin: 0 50px;
     position: relative;
+    top: 4px; /* FIXME: for an unknown reason, images appear shifted 4px up; this fixes it, but i need to find the actual reason */
     display: inline-block;
 }
 
 .city_skyline .city_building .building_name {
     position: absolute;
-    bottom: 10px;
+    bottom: -25px;
     left: 0px;
+    width: 100%;
+}
+
+.city_skyline .city_building .building_name p {
+    width: 150px;
+    height: 20px;
+    margin: 0 auto;
+    text-align: center;
+    color: black;
+    background: url(../images/maps/city_name.png);
 }
