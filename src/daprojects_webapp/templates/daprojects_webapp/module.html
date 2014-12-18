@@ -21,6 +21,13 @@
                             <img src="{% static 'images/city/building_'%}{% cycle '1' '2' '3' %}.png" />
                             <div class="building_name"><p>{% if child_module.name %}{{ child_module.name }}{% else %}{{ child_module.slug }}{% endif %}</p></div>
                         </a>
+                        <div class="dungeon_wrapper">
+                            <div class="dungeon">
+                                <div class="dungeon_left"></div>
+                                <div class="dungeon_body"></div>
+                                <div class="dungeon_right"></div>
+                            </div>
+                        </div>
                     </div>
                 {% endfor %}
             </div>

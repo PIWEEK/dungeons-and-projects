@@ -38,3 +38,7 @@ tileset.png
   Tileset cities from http://opengameart.org/content/worldmapoverworld-tileset
   MrBeast / OpenGameArt.org
 
+xeonrockloop3.png
+  Underground cave tiles from http://opengameart.org/content/pixel-art-tiles-from-last-escape
+  Stephen Challener (Redshrike) / OpenGameArt.org
+
