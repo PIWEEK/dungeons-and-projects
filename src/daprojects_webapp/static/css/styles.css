@@ -114,6 +114,26 @@ body {
     padding: 0px 24px 0px 25px;
 }
 
+
+/*
+    content expanded
+*/
+
+#content_top_expanded{
+    background: url(../images/content_top_expanded.png) top left repeat-x;
+    height: 25px;
+}
+
+#content_bottom_expanded{
+    background: url(../images/content_bottom_expanded.png) top left repeat-x;
+    height: 24px;
+}
+
+#content_bg_repeat_expanded{
+    background: url(../images/content_bg_repeat_expanded.png) top left repeat;
+    padding: 0;
+}
+
 /*
     content box 1
 */
@@ -812,4 +832,51 @@ margin-bottom: -30px;
     border-radius: 5px;
     color: purple;
     background: rgba(255, 255, 255, .6);
+}
+
+/* City */
+
+
+.city_skyline {
+    background: url(../images/city/city_background.png) top center no-repeat;
+    height: 800px;
+    position: relative;
+    overflow: auto;
+}
+
+.city_skyline .city_surface {
+    position: absolute;
+    bottom: 256px;
+    left: 0px;
+    height: 128px;
+    width: 100%;
+    background: url(../images/city/ground_surface.png) top left repeat-x;
+}
+
+.city_skyline .city_underground {
+    position: absolute;
+    bottom: 0px;
+    left: 0px;
+    height: 256px;
+    width: 100%;
+    background: url(../images/city/ground_underground.png) top left repeat;
+}
+
+.city_skyline .city_buildings {
+    position: absolute;
+    bottom: 384px;
+    left: 0px;
+    width: 100%;
+}
+
+.city_skyline .city_building {
+    margin: 0 50px;
+    position: relative;
+    display: inline-block;
+}
+
+.city_skyline .city_building .building_name {
+    position: absolute;
+    bottom: 10px;
+    left: 0px;
 }

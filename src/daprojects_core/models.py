@@ -70,7 +70,7 @@ class Module(MPTTModel):
     @property
     def path(self):
         return os.path.join(
-            *[dir.slug for dir in self.get_ancestors(include_self=True)]
+            *[(module.name if module.name else module.slug) for module in self.get_ancestors(include_self=True)]
         )
 
     def nested_issues(self):

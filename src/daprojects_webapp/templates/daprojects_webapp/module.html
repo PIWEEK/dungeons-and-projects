@@ -1,6 +1,31 @@
-<html>
-    <body>
-        <h1>Módulo {{ module.path }}</h1>
+{% extends "daprojects_webapp/base.html" %}
+
+{% load i18n staticfiles %}
+
+{% block content %}
+    </div> <!--  close 'wrap' --><!-- FIXME: find a more elegant way to do this layout -->
+    <div id="content_top_expanded"></div>
+
+    <div id="content_bg_repeat_expanded">
+        <h1>
+            <a href="{% url 'project' project_id=project.id %}">{{ project.name }}</a> /
+            <a href="{% url 'module' project_id=project.id module_id=module.id %}">{{ module.path }}</a>
+        </h1>
+        <div class="city_skyline">
+            <div class="city_surface"></div>
+            <div class="city_underground"></div>
+            <div class="city_buildings">
+                {% for child_module in module.get_children %}
+                    <div class="city_building">
+                        <a href="#">
+                            <img src="{% static 'images/city/building_'%}{% cycle '1' '2' '3' %}.png" />
+                            {#<p class="building_name">{% if child_module.name %}{{ child_module.name }}{% else %}{{ child_module.slug }}{% endif %}</p>#}
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% comment %}
         {% if module.issues.all %}
             <ul>
                 {% for issue in module.issues.all %}
@@ -24,5 +49,9 @@
                 {% endfor %}
             </ul>
         {% endif %}
-    </body>
-</html>
+        {% endcomment %}
+    </div>
+
+    <div id="content_bottom_expanded"></div>
+    <div id="wrap"> <!-- reopen wrap --><!-- TODO: change id to class -->
+{% endblock %}

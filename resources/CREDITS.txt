@@ -1,0 +1,40 @@
+1hoursheet.png
+  Vampyre sprites from http://opengameart.org/content/1-hour-lpc-enemy
+  Redshrike / OpenGameArt.org
+
+background.zip
+  Large nature background from http://opengameart.org/content/large-nature-background
+  Julien / OpenGameArt.org
+
+E1_32x32.png
+  Modular house from http://opengameart.org/content/32x32-house
+  Edarap / OpenGameArt.org
+
+fantasy-world.zip
+  Maps from http://freefantasymaps.org/
+  John Timmermann
+
+fantasy_world_by_morgorth-d6hbhut.jpg
+  Website background from http://dreadjim.deviantart.com/art/Fantasy-world-391886885
+  DreadJim / Deviantart.com
+
+houses.zip
+  House blocks from http://opengameart.org/content/old-frogatto-houses
+  Guido Bos / OpenGameArt.org
+
+LPC_Spiders.zip
+  Spider sprites from http://opengameart.org/content/lpc-spider
+  William.Thompsonj / OpenGameArt.org
+
+metamorph_greenex.zip
+  Free CSS template from http://www.openwebdesign.org/design/6362/metamorph_greenex/
+  Flash Templates / http://www.metamorphozis.com/
+
+PlatformerTiles.zip
+  Surface and subterranean tiles from http://opengameart.org/content/platformer-tiles-0
+  TheValar / OpenGameArt.org
+
+tileset.png
+  Tileset cities from http://opengameart.org/content/worldmapoverworld-tileset
+  MrBeast / OpenGameArt.org
+

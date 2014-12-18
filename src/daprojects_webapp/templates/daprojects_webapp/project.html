@@ -6,7 +6,7 @@
     <div id="content_top"></div>
 
     <div id="content_bg_repeat">
-        <h1>Proyecto {{ project.name }}</h1>
+        <h1><a href="{% url 'project' project_id=project.id %}">{{ project.name }}</a></h1>
         <div class="big_map">
             <img src="{% static map.image_path %}" />
             {% for module, placeholder in modules_and_placeholders %}
@@ -24,22 +24,6 @@
                 </div>
             {% endfor %}
         </div>
-        {% comment %}
-        <ul>
-            {% for module in project.first_level_modules %}
-                <li>
-                    <a href="{% url 'module' project_id=project.id module_id=module.id %}">{{ module.slug }}</a>
-                    {% if module.nested_issues %}
-                        <ul>
-                            {% for issue in module.nested_issues %}
-                                <li>{{ issue.kind.name}} - {{ issue.file_name }} - {{ issue.description }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
-                </li>
-            {% endfor %}
-        </ul>
-        {% endcomment %}
     </div>
 
     <div id="content_bottom"></div>
