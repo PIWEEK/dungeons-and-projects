@@ -894,15 +894,14 @@ margin-bottom: -30px;
     background: url(../images/maps/city_name.png);
 }
 
-.city_skyline .city_building .dungeon_wrapper {
+.city_skyline .city_building .dungeon {
     position: absolute;
     left: 0;
     width: 100%;
     z-index: 1;
 }
 
-.city_skyline .city_building .dungeon {
-    margin: 0 auto;
+.city_skyline .city_building .dungeon_wrapper {
     width: 100%;
     display: flex;
     position: relative; /* FIXME: when the other fixme up there is done, remove these two lines */
@@ -924,3 +923,16 @@ margin-bottom: -30px;
     background: url(../images/city/dungeon_right.png) top left repeat;
 }
 
+.city_skyline .city_building .dungeon_wrapper_bottom {
+    min-height: 32px;
+    display: flex;
+    padding-left: 32px;
+    padding-right: 32px;
+    position: relative;
+    top: -4px;
+}
+.city_skyline .city_building .dungeon_bottom {
+    width: 100%;
+    min-height: 32px;
+    background: url(../images/city/dungeon_bottom.png) top left repeat;
+}

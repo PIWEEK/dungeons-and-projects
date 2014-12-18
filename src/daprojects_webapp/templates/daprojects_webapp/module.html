@@ -22,8 +22,8 @@
                             <img src="{% static 'images/city/building_'%}2.png" /><!-- TODO: define module size to choose building type -->
                             <div class="building_name"><p>{% if module.name %}{{ module.name }}{% else %}{{ module.slug }}{% endif %}</p></div>
                         </a>
-                        <div class="dungeon_wrapper">
-                            <div class="dungeon">
+                        <div class="dungeon">
+                            <div class="dungeon_wrapper">
                                 <div class="dungeon_left"></div>
                                 <div class="dungeon_body">
                                     {% for issue in module.nested_issues %}
@@ -32,6 +32,9 @@
                                     {% endfor %}
                                 </div>
                                 <div class="dungeon_right"></div>
+                            </div>
+                            <div class="dungeon_wrapper_bottom">
+                                <div class="dungeon_bottom"></div>
                             </div>
                         </div>
                     </div>
@@ -42,8 +45,8 @@
                             <img src="{% static 'images/city/building_'%}{% cycle '1' '2' '3' %}.png" /><!-- TODO: define module size to choose building type -->
                             <div class="building_name"><p>{% if child_module.name %}{{ child_module.name }}{% else %}{{ child_module.slug }}{% endif %}</p></div>
                         </a>
-                        <div class="dungeon_wrapper">
-                            <div class="dungeon">
+                        <div class="dungeon">
+                            <div class="dungeon_wrapper">
                                 <div class="dungeon_left"></div>
                                 <div class="dungeon_body">
                                     {% for issue in child_module.nested_issues %}
@@ -52,6 +55,9 @@
                                     {% endfor %}
                                 </div>
                                 <div class="dungeon_right"></div>
+                            </div>
+                            <div class="dungeon_wrapper_bottom">
+                                <div class="dungeon_bottom"></div>
                             </div>
                         </div>
                     </div>
