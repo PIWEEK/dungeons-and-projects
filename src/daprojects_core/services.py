@@ -74,6 +74,6 @@ def _sync_issues_module(module_data, level_of_modules, filter_kinds):
             size=issue_data['size'],
         )
 
-        for submodule_data in module_data['submodules']:
-            _sync_issues_module(submodule_data, module.get_children(), filter_kinds)
+    for submodule_data in module_data['submodules']:
+        _sync_issues_module(submodule_data, module.get_children(), filter_kinds)
 
