@@ -26,5 +26,24 @@ class Command(BaseCommand):
         if not os.access(filesystem_root, os.R_OK):
             raise CommandError('Cannot read path "{}"'.format(filesystem_root))
 
-        services.init_project_from_filesystem(project, filesystem_root)
+        init_project_from_filesystem(project, filesystem_root)
+
+
+def init_project_from_filesystem(project, root_path, depth = 3):
+    directory_tree = _read_directory_level(root_path, depth)
+    services.init_project(project, directory_tree)
+
+
+def _read_directory_level(path, depth):
+    print(path) # TODO: use callback to send the event to the caller
+    if depth <= 0:
+        return []
+    else:
+        return [
+            {
+                'name': dir_name,
+                'subdirs': _read_directory_level(os.path.join(path, dir_name), depth-1),
+            }
+            for dir_name in os.listdir(path) if os.path.isdir(os.path.join(path, dir_name))
+        ]
 

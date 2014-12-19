@@ -2,34 +2,35 @@ import os
 
 from . import models
 
-def init_project_from_filesystem(project, root_path, depth = 3):
+
+def init_project(project, directory_tree):
     '''
-    Make an initial load of directories and modules of a project, by reading the
-    physical directories of a filesystem. Need the project to be empty.
+    Make an initial load of directories and modules of a project, from the specified
+    directory tree structure. Need the project to be empty.
+
+      - directory_tree is a list with the first level directories, each one having
+        - name: the name of the directory
+        - subdirs: a list of subdirectories, recursively with the same structure
     '''
     if project.modules.exists() or project.directories.exists():
         raise ValueError('The project must be empty')
-    _init_project_step(project, None, None, root_path, depth)
+    _init_project_level(project, None, None, directory_tree)
 
 
-def _init_project_step(project, parent_module, parent_dir, path, depth):
-    if depth > 0:
-        entries = [entry for entry in os.listdir(path) if os.path.isdir(os.path.join(path, entry))]
-        entries.sort()
-        for entry in entries:
-            directory = models.Directory.objects.create(
-                project = project,
-                parent = parent_dir,
-                slug = entry,
-            )
-            module = models.Module.objects.create(
-                project = project,
-                parent = parent_module,
-                slug = entry,
-            )
-            directory.modules.add(module)
-            print(str(module)) # TODO: use callback to send the event to the caller
-            _init_project_step(project, module, directory, os.path.join(path, entry), depth - 1)
+def _init_project_level(project, parent_module, parent_dir, dir_level):
+    for dir_data in dir_level:
+        directory = models.Directory.objects.create(
+            project = project,
+            parent = parent_dir,
+            slug = dir_data['name'],
+        )
+        module = models.Module.objects.create(
+            project = project,
+            parent = parent_module,
+            slug = dir_data['name'],
+        )
+        directory.modules.add(module)
+        _init_project_level(project, module, directory, dir_data['subdirs'])
 
 
 def sync_issues(project, modules_issues, filter_kinds=[]):
