@@ -1,6 +1,4 @@
 import os
-import re
-import random
 
 from . import models
 
@@ -34,52 +32,47 @@ def _init_project_step(project, parent_module, parent_dir, path, depth):
             _init_project_step(project, module, directory, os.path.join(path, entry), depth - 1)
 
 
-def sync_issues_with_filesystem(project, root_path):
+def sync_issues(project, modules_issues, filter_kinds=[]):
     '''
-    Search the filesystem for specific comments (see kinds) and create issues for them.
+    Synchronize the issues of a project with the given list, by adding, updating
+    and deleting issues as necessary.
+
+      - modules_issues is a list of modules dictionaries, each one having
+        - module: an instance of models.Module
+        - issues: the desired list of issues, each one having
+          - file_name
+          - file_line
+          - description
+          - kind
+          - size
+        - submodules: a list of submodules, recursively with the same structure
+
+     - filter_kinds is a list, if not empty only issues of these kinds are deleted
     '''
-    for module in project.modules.all():
-        # TODO: synchronize instead of replacing
-        module.issues.all().delete()
-        for directory in module.directories.all():
-            for filename in os.listdir(os.path.join(root_path, directory.path)):
-                _analyze_file(module, os.path.join(root_path, directory.path, filename))
+    for module_data in modules_issues:
+        _sync_issues_module(module_data, project.first_level_modules(), filter_kinds)
 
 
-def _analyze_file(module, file_path):
-    root, ext = os.path.splitext(file_path)
-    if ext == '.py':
-        _analyze_file_python(module, file_path)
-    elif ext == '.coffee':
-        _analyze_file_coffeescript(module, file_path)
-    elif ext == '.html':
-        _analyze_file_html(module, file_path)
+def _sync_issues_module(module_data, level_of_modules, filter_kinds):
+    module = module_data['module']
+    assert(module in level_of_modules)
 
+    # TODO: synchronize instead of replacing
+    issues = module.issues.all()
+    if filter_kinds:
+        issues = issues.filter(kind__name__in=filter_kinds)
+    issues.delete()
 
-def _analyze_file_python(module, file_path):
-    _analyze_file_regex(module, file_path, ['# *{}:? *(.*)'])
+    for issue_data in module_data['issues']:
+        issue = models.Issue.objects.create(
+            module=module,
+            file_name=issue_data['file_name'],
+            file_line=issue_data['file_line'],
+            description=issue_data['description'],
+            kind=issue_data['kind'],
+            size=issue_data['size'],
+        )
 
+        for submodule_data in module_data['submodules']:
+            _sync_issues_module(submodule_data, module.get_children(), filter_kinds)
 
-def _analyze_file_coffeescript(module, file_path):
-    _analyze_file_regex(module, file_path, ['# *{}:? *(.*)'])
-
-
-def _analyze_file_html(module, file_path):
-    _analyze_file_regex(module, file_path, ['<!-- *{}:? *(.*) -->', '{{# *{}:? *(.*) *#}}', '{{% comment %}} *(.*) *{{% endcomment %}}'])
-
-
-def _analyze_file_regex(module, file_path, regexps):
-    file = open(file_path, 'r')
-    content = file.read()
-    for regexp in regexps:
-        for issue_kind in models.IssueKind.objects.all():
-            for match in re.finditer(regexp.format(issue_kind.name), content):
-                issue = models.Issue.objects.create(
-                    module=module,
-                    file_name=os.path.basename(file_path),
-                    file_line=None, # TODO: calculate file line
-                    description=match.group(1),
-                    kind=issue_kind,
-                    size=random.randint(1, 5), # TODO: read size from comment text
-                )
-                print(str(issue)) # TODO: use callback to send the event to the caller
