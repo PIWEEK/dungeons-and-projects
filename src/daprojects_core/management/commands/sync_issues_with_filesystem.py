@@ -17,6 +17,8 @@ class Command(BaseCommand):
         if len(args) != 2:
             raise CommandError('You must specify project slug and filesystem root.')
 
+        random.seed(111)
+
         project_slug = args[0]
         try:
             project = models.Project.objects.get(slug=project_slug)
