@@ -12,7 +12,7 @@ class ProjectSerializer(HyperlinkedModelSerializer):
 class ModuleSerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Module
-        fields = ('url', 'project', 'parent', 'name', 'slug', 'description', 'directories')
+        fields = ('url', 'project', 'parent', 'children', 'name', 'slug', 'description', 'directories', 'issues')
 
 
 class IssueKindSerializer(HyperlinkedModelSerializer):
@@ -30,5 +30,5 @@ class IssueSerializer(HyperlinkedModelSerializer):
 class DirectorySerializer(HyperlinkedModelSerializer):
     class Meta:
         model = Directory
-        fields = ('url', 'project', 'parent', 'slug', 'modules')
+        fields = ('url', 'project', 'parent', 'children', 'slug', 'modules')
 

@@ -2,3 +2,4 @@ Django==1.7.1
 django-mptt==0.6.1
 psycopg2==2.5.4
 djangorestframework==3.0.2
+django-filter==0.9.1
