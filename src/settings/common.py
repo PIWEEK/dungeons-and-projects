@@ -43,8 +43,10 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     # Third party
     'mptt',
+    'rest_framework',
     # Local
     'daprojects_core',
+    'daprojects_api',
     'daprojects_webapp',
 )
 
