@@ -26,7 +26,7 @@
                             <div class="dungeon_wrapper">
                                 <div class="dungeon_left"></div>
                                 <div class="dungeon_body">
-                                    {% for issue in module.nested_issues %}
+                                    {% for issue in module.issues.all %}
                                         <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}-{{ issue.size }}.png"
                                              title="{{ issue.kind.name }} [{{ issue.size }}] - {{ issue.description }}" />
                                     {% endfor %}

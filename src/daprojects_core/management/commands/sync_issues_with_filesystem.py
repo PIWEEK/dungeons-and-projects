@@ -17,7 +17,7 @@ class Command(BaseCommand):
         if len(args) != 2:
             raise CommandError('You must specify project slug and filesystem root.')
 
-        random.seed(111)
+        random.seed(69)
 
         project_slug = args[0]
         try:
