@@ -238,3 +238,68 @@ class TestIssueKinds(unittest.TestCase):
             "name": "Test IssueKind {}".format(issue_kind_id),
         }
 
+
+class TestIssues(unittest.TestCase):
+
+    def test_list_issues(self):
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = [
+                self._sample_issue(1),
+                self._sample_issue(2)
+            ]
+            mock_requests_get.return_value = mock_response
+
+            issues = resources.list_issues()
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/issues/')
+
+            self.assertEqual(len(issues), 2)
+            self.assertEqual(issues[0].url, 'http://localhost:8000/api/v1/issues/1/')
+            self.assertEqual(issues[0].module, 'http://localhost:8000/api/v1/modules/1/')
+            self.assertEqual(issues[0].name, 'Test Issue 1')
+            self.assertEqual(issues[0].file_name, 'file-name-1.py')
+            self.assertEqual(issues[0].file_line, 667)
+            self.assertEqual(issues[0].kind, 'http://localhost:8000/api/v1/issue_kinds/1/')
+            self.assertEqual(issues[0].size, 1000)
+            self.assertEqual(issues[0].description, 'Issue description 1')
+            self.assertEqual(issues[1].url, 'http://localhost:8000/api/v1/issues/2/')
+            self.assertEqual(issues[1].module, 'http://localhost:8000/api/v1/modules/1/')
+            self.assertEqual(issues[1].name, 'Test Issue 2')
+            self.assertEqual(issues[1].file_name, 'file-name-2.py')
+            self.assertEqual(issues[1].file_line, 668)
+            self.assertEqual(issues[1].kind, 'http://localhost:8000/api/v1/issue_kinds/1/')
+            self.assertEqual(issues[1].size, 1001)
+            self.assertEqual(issues[1].description, 'Issue description 2')
+
+    def test_retrieve_issue(self):
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = self._sample_issue(1)
+            mock_requests_get.return_value = mock_response
+
+            issue = resources.retrieve_issue("http://localhost:8000/api/v1/issues/1/")
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/issues/1/')
+
+            self.assertEqual(issue.url, 'http://localhost:8000/api/v1/issues/1/')
+            self.assertEqual(issue.module, 'http://localhost:8000/api/v1/modules/1/')
+            self.assertEqual(issue.name, 'Test Issue 1')
+            self.assertEqual(issue.file_name, 'file-name-1.py')
+            self.assertEqual(issue.file_line, 667)
+            self.assertEqual(issue.kind, 'http://localhost:8000/api/v1/issue_kinds/1/')
+            self.assertEqual(issue.size, 1000)
+            self.assertEqual(issue.description, 'Issue description 1')
+
+    def _sample_issue(self, issue_id, module_id=1, issue_kind_id=1):
+        return {
+            "url": "http://localhost:8000/api/v1/issues/{}/".format(issue_id),
+            "module": "http://localhost:8000/api/v1/modules/{}/".format(module_id),
+            "name": "Test Issue {}".format(issue_id),
+            "file_name": "file-name-{}.py".format(issue_id),
+            "file_line": 666 + issue_id,
+            "description": "Issue description {}".format(issue_id),
+            "kind": "http://localhost:8000/api/v1/issue_kinds/{}/".format(issue_kind_id),
+            "size": 999 + issue_id,
+        }
+
