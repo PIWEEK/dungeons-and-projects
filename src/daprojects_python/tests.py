@@ -35,6 +35,27 @@ class TestClient(unittest.TestCase):
 
             mock_response.raise_for_status.assert_called_once()
 
+    def test_resource_subclass(self):
+
+        class SomeResource(client.Resource):
+            def some_method(self):
+                return self.a + self.b
+
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = {
+                "url": 'http://localhost:8000/api/v1/some_resources/1/',
+                "a": 66,
+                "b": 99,
+            }
+            mock_requests_get.return_value = mock_response
+
+            some_resource = client.retrieve_resource(client.base_url + '/some_resources/1/', SomeResource)
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/some_resources/1/')
+            self.assertTrue(isinstance(some_resource, SomeResource))
+            self.assertEqual(some_resource.some_method(), 66 + 99)
+
 
 class TestProjects(unittest.TestCase):
 
@@ -141,25 +162,25 @@ class TestModules(unittest.TestCase):
             self.assertEqual(module.issues, [])
 
     def test_module_project(self):
-        module = resources.Module(**self._sample_module(1, project_id=1))
+        module = client.Resource(**self._sample_module(1, project_id=1))
         self.assertEqual(module.project, 'http://localhost:8000/api/v1/projects/1/')
 
     def test_module_parent(self):
-        module = resources.Module(**self._sample_module(2, parent_id=1))
+        module = client.Resource(**self._sample_module(2, parent_id=1))
         self.assertEqual(module.parent, 'http://localhost:8000/api/v1/modules/1/')
 
     def test_module_children(self):
-        module = resources.Module(**self._sample_module(1, child_ids=[2, 3, 4]))
+        module = client.Resource(**self._sample_module(1, child_ids=[2, 3, 4]))
         for i, child_id in enumerate([2, 3, 4]):
             self.assertEqual(module.children[i], 'http://localhost:8000/api/v1/modules/{}/'.format(child_id))
 
     def test_module_directories(self):
-        module = resources.Module(**self._sample_module(1, directory_ids=[2, 3, 4]))
+        module = client.Resource(**self._sample_module(1, directory_ids=[2, 3, 4]))
         for i, directory_id in enumerate([2, 3, 4]):
             self.assertEqual(module.directories[i], 'http://localhost:8000/api/v1/directories/{}/'.format(directory_id))
 
     def test_module_issues(self):
-        module = resources.Module(**self._sample_module(1, issue_ids=[2, 3, 4]))
+        module = client.Resource(**self._sample_module(1, issue_ids=[2, 3, 4]))
         for i, issue_id in enumerate([2, 3, 4]):
             self.assertEqual(module.issues[i], 'http://localhost:8000/api/v1/issues/{}/'.format(issue_id))
 
@@ -174,5 +195,46 @@ class TestModules(unittest.TestCase):
             "description": "Module description {}".format(module_id),
             "directories": ["http://localhost:8000/api/v1/directories/{}/".format(directory_id) for directory_id in directory_ids],
             "issues": ["http://localhost:8000/api/v1/issues/{}/".format(issue_id) for issue_id in issue_ids],
+        }
+
+
+class TestIssueKinds(unittest.TestCase):
+
+    def test_list_issue_kinds(self):
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = [
+                self._sample_issue_kind(1),
+                self._sample_issue_kind(2)
+            ]
+            mock_requests_get.return_value = mock_response
+
+            issue_kinds = resources.list_issue_kinds()
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/issue_kinds/')
+
+            self.assertEqual(len(issue_kinds), 2)
+            self.assertEqual(issue_kinds[0].url, 'http://localhost:8000/api/v1/issue_kinds/1/')
+            self.assertEqual(issue_kinds[0].name, 'Test IssueKind 1')
+            self.assertEqual(issue_kinds[1].url, 'http://localhost:8000/api/v1/issue_kinds/2/')
+            self.assertEqual(issue_kinds[1].name, 'Test IssueKind 2')
+
+    def test_retrieve_issue_kind(self):
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = self._sample_issue_kind(1)
+            mock_requests_get.return_value = mock_response
+
+            issue_kind = resources.retrieve_issue_kind("http://localhost:8000/api/v1/issue_kinds/1/")
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/issue_kinds/1/')
+
+            self.assertEqual(issue_kind.url, 'http://localhost:8000/api/v1/issue_kinds/1/')
+            self.assertEqual(issue_kind.name, 'Test IssueKind 1')
+
+    def _sample_issue_kind(self, issue_kind_id):
+        return {
+            "url": "http://localhost:8000/api/v1/issue_kinds/{}/".format(issue_kind_id),
+            "name": "Test IssueKind {}".format(issue_kind_id),
         }
 
