@@ -4,7 +4,7 @@ from collections import namedtuple
 from requests import exceptions
 
 import client
-import entities
+import resources
 
 
 class TestDAPCLient(unittest.TestCase):
@@ -17,7 +17,7 @@ class TestDAPCLient(unittest.TestCase):
             mock_response.json.return_value = []
             mock_requests_get.return_value = mock_response
 
-            projects = entities.list_projects()
+            projects = resources.list_projects()
 
             mock_requests_get.assert_called_once_with('https://example.com:9090/api/v1/projects/')
             self.assertEqual(len(projects), 0)
@@ -29,7 +29,7 @@ class TestDAPCLient(unittest.TestCase):
             mock_requests_get.return_value = mock_response
 
             with self.assertRaises(exceptions.RequestException):
-                projects = entities.list_projects()
+                projects = resources.list_projects()
 
             mock_response.raise_for_status.assert_called_once()
 
@@ -52,7 +52,7 @@ class TestDAPCLient(unittest.TestCase):
             ]
             mock_requests_get.return_value = mock_response
 
-            projects = entities.list_projects()
+            projects = resources.list_projects()
 
             mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/')
 
@@ -77,7 +77,7 @@ class TestDAPCLient(unittest.TestCase):
             }
             mock_requests_get.return_value = mock_response
 
-            project = entities.retrieve_project("http://localhost:8000/api/v1/projects/1")
+            project = resources.retrieve_project("http://localhost:8000/api/v1/projects/1")
 
             mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/1')
 
