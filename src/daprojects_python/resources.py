@@ -32,3 +32,11 @@ def list_issues():
 def retrieve_issue(issue_url):
     return client.retrieve_resource(issue_url)
 
+
+def list_directories():
+    return client.list_resources(client.base_url + '/directories/')
+
+
+def retrieve_directory(directory_url):
+    return client.retrieve_resource(directory_url)
+

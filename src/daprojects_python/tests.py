@@ -291,6 +291,14 @@ class TestIssues(unittest.TestCase):
             self.assertEqual(issue.size, 1000)
             self.assertEqual(issue.description, 'Issue description 1')
 
+    def test_issue_module(self):
+        issue = client.Resource(**self._sample_issue(1, module_id=1))
+        self.assertEqual(issue.module, 'http://localhost:8000/api/v1/modules/1/')
+
+    def test_issue_issue_kind(self):
+        issue = client.Resource(**self._sample_issue(1, issue_kind_id=1))
+        self.assertEqual(issue.kind, 'http://localhost:8000/api/v1/issue_kinds/1/')
+
     def _sample_issue(self, issue_id, module_id=1, issue_kind_id=1):
         return {
             "url": "http://localhost:8000/api/v1/issues/{}/".format(issue_id),
@@ -301,5 +309,80 @@ class TestIssues(unittest.TestCase):
             "description": "Issue description {}".format(issue_id),
             "kind": "http://localhost:8000/api/v1/issue_kinds/{}/".format(issue_kind_id),
             "size": 999 + issue_id,
+        }
+
+
+class TestDirectories(unittest.TestCase):
+
+    def test_list_directories(self):
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = [
+                self._sample_directory(1),
+                self._sample_directory(2),
+            ]
+            mock_requests_get.return_value = mock_response
+
+            directories = resources.list_directories()
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/directories/')
+
+            self.assertEqual(len(directories), 2)
+            self.assertEqual(directories[0].url, 'http://localhost:8000/api/v1/directories/1/')
+            self.assertEqual(directories[0].project, 'http://localhost:8000/api/v1/projects/1/')
+            self.assertEqual(directories[0].parent, None)
+            self.assertEqual(directories[0].children, [])
+            self.assertEqual(directories[0].slug, 'test-directory-1')
+            self.assertEqual(directories[0].modules, [])
+            self.assertEqual(directories[1].url, 'http://localhost:8000/api/v1/directories/2/')
+            self.assertEqual(directories[1].project, 'http://localhost:8000/api/v1/projects/1/')
+            self.assertEqual(directories[1].parent, None)
+            self.assertEqual(directories[1].children, [])
+            self.assertEqual(directories[1].slug, 'test-directory-2')
+            self.assertEqual(directories[1].modules, [])
+
+    def test_retrieve_directory(self):
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = self._sample_directory(1)
+            mock_requests_get.return_value = mock_response
+
+            directory = resources.retrieve_directory("http://localhost:8000/api/v1/directories/1/")
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/directories/1/')
+
+            self.assertEqual(directory.url, 'http://localhost:8000/api/v1/directories/1/')
+            self.assertEqual(directory.project, 'http://localhost:8000/api/v1/projects/1/')
+            self.assertEqual(directory.parent, None)
+            self.assertEqual(directory.children, [])
+            self.assertEqual(directory.slug, 'test-directory-1')
+            self.assertEqual(directory.modules, [])
+
+    def test_directory_project(self):
+        directory = client.Resource(**self._sample_directory(1, project_id=1))
+        self.assertEqual(directory.project, 'http://localhost:8000/api/v1/projects/1/')
+
+    def test_directory_parent(self):
+        directory = client.Resource(**self._sample_directory(2, parent_id=1))
+        self.assertEqual(directory.parent, 'http://localhost:8000/api/v1/directories/1/')
+
+    def test_directory_children(self):
+        directory = client.Resource(**self._sample_directory(1, child_ids=[2, 3, 4]))
+        for i, child_id in enumerate([2, 3, 4]):
+            self.assertEqual(directory.children[i], 'http://localhost:8000/api/v1/directories/{}/'.format(child_id))
+
+    def test_directory_modules(self):
+        directory = client.Resource(**self._sample_directory(1, module_ids=[2, 3, 4]))
+        for i, module_id in enumerate([2, 3, 4]):
+            self.assertEqual(directory.modules[i], 'http://localhost:8000/api/v1/modules/{}/'.format(module_id))
+
+    def _sample_directory(self, directory_id, project_id=1, parent_id=None, child_ids=[], module_ids=[]):
+        return {
+            "url": "http://localhost:8000/api/v1/directories/{}/".format(directory_id),
+            "project": "http://localhost:8000/api/v1/projects/{}/".format(project_id),
+            "parent": "http://localhost:8000/api/v1/directories/{}/".format(parent_id) if parent_id else None,
+            "children": ["http://localhost:8000/api/v1/directories/{}/".format(child_id) for child_id in child_ids],
+            "slug": "test-directory-{}".format(directory_id),
+            "modules": ["http://localhost:8000/api/v1/modules/{}/".format(module_id) for module_id in module_ids],
         }
 
