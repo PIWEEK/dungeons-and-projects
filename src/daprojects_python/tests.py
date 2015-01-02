@@ -42,18 +42,8 @@ class TestProjects(unittest.TestCase):
         with patch('client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = [
-                {
-                    "url": "http://localhost:8000/api/v1/projects/1",
-                    "name": "Test Project 1",
-                    "slug": "test-project-1",
-                    "description": "Test description 1"
-                },
-                {
-                    "url": "http://localhost:8000/api/v1/projects/2",
-                    "name": "Test Project 2",
-                    "slug": "test-project-2",
-                    "description": "Test description 2"
-                }
+                self._sample_project(1),
+                self._sample_project(2)
             ]
             mock_requests_get.return_value = mock_response
 
@@ -62,32 +52,127 @@ class TestProjects(unittest.TestCase):
             mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/')
 
             self.assertEqual(len(projects), 2)
-            self.assertEqual(projects[0].url, 'http://localhost:8000/api/v1/projects/1')
+            self.assertEqual(projects[0].url, 'http://localhost:8000/api/v1/projects/1/')
             self.assertEqual(projects[0].name, 'Test Project 1')
             self.assertEqual(projects[0].slug, 'test-project-1')
-            self.assertEqual(projects[0].description, 'Test description 1')
-            self.assertEqual(projects[1].url, 'http://localhost:8000/api/v1/projects/2')
+            self.assertEqual(projects[0].description, 'Project description 1')
+            self.assertEqual(projects[1].url, 'http://localhost:8000/api/v1/projects/2/')
             self.assertEqual(projects[1].name, 'Test Project 2')
             self.assertEqual(projects[1].slug, 'test-project-2')
-            self.assertEqual(projects[1].description, 'Test description 2')
+            self.assertEqual(projects[1].description, 'Project description 2')
 
     def test_retrieve_project(self):
         with patch('client.requests.get') as mock_requests_get:
             mock_response = Mock()
-            mock_response.json.return_value = {
-                "url": "http://localhost:8000/api/v1/projects/1",
-                "name": "Test Project",
-                "slug": "test-project",
-                "description": "Test description"
-            }
+            mock_response.json.return_value = self._sample_project(1)
             mock_requests_get.return_value = mock_response
 
-            project = resources.retrieve_project("http://localhost:8000/api/v1/projects/1")
+            project = resources.retrieve_project("http://localhost:8000/api/v1/projects/1/")
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/1')
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/1/')
 
-            self.assertEqual(project.url, 'http://localhost:8000/api/v1/projects/1')
-            self.assertEqual(project.name, 'Test Project')
-            self.assertEqual(project.slug, 'test-project')
-            self.assertEqual(project.description, 'Test description')
+            self.assertEqual(project.url, 'http://localhost:8000/api/v1/projects/1/')
+            self.assertEqual(project.name, 'Test Project 1')
+            self.assertEqual(project.slug, 'test-project-1')
+            self.assertEqual(project.description, 'Project description 1')
+
+    def _sample_project(self, project_id):
+        return {
+            "url": "http://localhost:8000/api/v1/projects/{}/".format(project_id),
+            "name": "Test Project {}".format(project_id),
+            "slug": "test-project-{}".format(project_id),
+            "description": "Project description {}".format(project_id),
+        }
+
+
+class TestModules(unittest.TestCase):
+
+    def test_list_modules(self):
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = [
+                self._sample_module(1),
+                self._sample_module(2),
+            ]
+            mock_requests_get.return_value = mock_response
+
+            modules = resources.list_modules()
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/modules/')
+
+            self.assertEqual(len(modules), 2)
+            self.assertEqual(modules[0].url, 'http://localhost:8000/api/v1/modules/1/')
+            self.assertEqual(modules[0].project, 'http://localhost:8000/api/v1/projects/1/')
+            self.assertEqual(modules[0].parent, None)
+            self.assertEqual(modules[0].children, [])
+            self.assertEqual(modules[0].name, 'Test Module 1')
+            self.assertEqual(modules[0].slug, 'test-module-1')
+            self.assertEqual(modules[0].description, 'Module description 1')
+            self.assertEqual(modules[0].directories, [])
+            self.assertEqual(modules[0].issues, [])
+            self.assertEqual(modules[1].url, 'http://localhost:8000/api/v1/modules/2/')
+            self.assertEqual(modules[1].project, 'http://localhost:8000/api/v1/projects/1/')
+            self.assertEqual(modules[1].parent, None)
+            self.assertEqual(modules[1].children, [])
+            self.assertEqual(modules[1].name, 'Test Module 2')
+            self.assertEqual(modules[1].slug, 'test-module-2')
+            self.assertEqual(modules[1].description, 'Module description 2')
+            self.assertEqual(modules[1].directories, [])
+            self.assertEqual(modules[1].issues, [])
+
+    def test_retrieve_module(self):
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = self._sample_module(1)
+            mock_requests_get.return_value = mock_response
+
+            module = resources.retrieve_module("http://localhost:8000/api/v1/modules/1/")
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/modules/1/')
+
+            self.assertEqual(module.url, 'http://localhost:8000/api/v1/modules/1/')
+            self.assertEqual(module.project, 'http://localhost:8000/api/v1/projects/1/')
+            self.assertEqual(module.parent, None)
+            self.assertEqual(module.children, [])
+            self.assertEqual(module.name, 'Test Module 1')
+            self.assertEqual(module.slug, 'test-module-1')
+            self.assertEqual(module.description, 'Module description 1')
+            self.assertEqual(module.directories, [])
+            self.assertEqual(module.issues, [])
+
+    def test_module_project(self):
+        module = resources.Module(**self._sample_module(1, project_id=1))
+        self.assertEqual(module.project, 'http://localhost:8000/api/v1/projects/1/')
+
+    def test_module_parent(self):
+        module = resources.Module(**self._sample_module(2, parent_id=1))
+        self.assertEqual(module.parent, 'http://localhost:8000/api/v1/modules/1/')
+
+    def test_module_children(self):
+        module = resources.Module(**self._sample_module(1, child_ids=[2, 3, 4]))
+        for i, child_id in enumerate([2, 3, 4]):
+            self.assertEqual(module.children[i], 'http://localhost:8000/api/v1/modules/{}/'.format(child_id))
+
+    def test_module_directories(self):
+        module = resources.Module(**self._sample_module(1, directory_ids=[2, 3, 4]))
+        for i, directory_id in enumerate([2, 3, 4]):
+            self.assertEqual(module.directories[i], 'http://localhost:8000/api/v1/directories/{}/'.format(directory_id))
+
+    def test_module_issues(self):
+        module = resources.Module(**self._sample_module(1, issue_ids=[2, 3, 4]))
+        for i, issue_id in enumerate([2, 3, 4]):
+            self.assertEqual(module.issues[i], 'http://localhost:8000/api/v1/issues/{}/'.format(issue_id))
+
+    def _sample_module(self, module_id, project_id=1, parent_id=None, child_ids=[], directory_ids=[], issue_ids=[]):
+        return {
+            "url": "http://localhost:8000/api/v1/modules/{}/".format(module_id),
+            "project": "http://localhost:8000/api/v1/projects/{}/".format(project_id),
+            "parent": "http://localhost:8000/api/v1/modules/{}/".format(parent_id) if parent_id else None,
+            "children": ["http://localhost:8000/api/v1/modules/{}/".format(child_id) for child_id in child_ids],
+            "name": "Test Module {}".format(module_id),
+            "slug": "test-module-{}".format(module_id),
+            "description": "Module description {}".format(module_id),
+            "directories": ["http://localhost:8000/api/v1/directories/{}/".format(directory_id) for directory_id in directory_ids],
+            "issues": ["http://localhost:8000/api/v1/issues/{}/".format(issue_id) for issue_id in issue_ids],
+        }
 
