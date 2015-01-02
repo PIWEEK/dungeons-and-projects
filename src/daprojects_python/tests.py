@@ -3,40 +3,37 @@ from unittest.mock import Mock, patch
 from collections import namedtuple
 from requests import exceptions
 
-from client import DAPClient
+import client
+import entities
 
 
 class TestDAPCLient(unittest.TestCase):
 
     def test_set_base_url(self):
-        client = DAPClient('https://example.com:9090')
+        client.set_host('https://example.com:9090')
 
         with patch('client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = []
             mock_requests_get.return_value = mock_response
 
-            projects = client.list_projects()
+            projects = entities.list_projects()
 
             mock_requests_get.assert_called_once_with('https://example.com:9090/api/v1/projects/')
             self.assertEqual(len(projects), 0)
 
     def test_error_checking(self):
-        client = DAPClient()
-
         with patch('client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.raise_for_status.side_effect = exceptions.RequestException('Not Found')
             mock_requests_get.return_value = mock_response
 
             with self.assertRaises(exceptions.RequestException):
-                projects = client.list_projects()
+                projects = entities.list_projects()
 
             mock_response.raise_for_status.assert_called_once()
 
     def test_list_projects(self):
-        client = DAPClient()
-
         with patch('client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = [
@@ -55,7 +52,7 @@ class TestDAPCLient(unittest.TestCase):
             ]
             mock_requests_get.return_value = mock_response
 
-            projects = client.list_projects()
+            projects = entities.list_projects()
 
             mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/')
 
@@ -70,8 +67,6 @@ class TestDAPCLient(unittest.TestCase):
             self.assertEqual(projects[1].description, 'Test description 2')
 
     def test_retrieve_project(self):
-        client = DAPClient()
-
         with patch('client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = {
@@ -82,7 +77,7 @@ class TestDAPCLient(unittest.TestCase):
             }
             mock_requests_get.return_value = mock_response
 
-            project = client.retrieve_project("http://localhost:8000/api/v1/projects/1")
+            project = entities.retrieve_project("http://localhost:8000/api/v1/projects/1")
 
             mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/1')
 
