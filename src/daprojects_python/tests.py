@@ -7,7 +7,7 @@ import client
 import resources
 
 
-class TestDAPCLient(unittest.TestCase):
+class TestClient(unittest.TestCase):
 
     def test_set_base_url(self):
         client.set_host('https://example.com:9090')
@@ -17,10 +17,12 @@ class TestDAPCLient(unittest.TestCase):
             mock_response.json.return_value = []
             mock_requests_get.return_value = mock_response
 
-            projects = resources.list_projects()
+            some_resources = client.list_resources(client.base_url + '/some_resources/')
 
-            mock_requests_get.assert_called_once_with('https://example.com:9090/api/v1/projects/')
-            self.assertEqual(len(projects), 0)
+            mock_requests_get.assert_called_once_with('https://example.com:9090/api/v1/some_resources/')
+            self.assertEqual(len(some_resources), 0)
+
+        client.set_host('http://localhost:8000')
 
     def test_error_checking(self):
         with patch('client.requests.get') as mock_requests_get:
@@ -29,9 +31,12 @@ class TestDAPCLient(unittest.TestCase):
             mock_requests_get.return_value = mock_response
 
             with self.assertRaises(exceptions.RequestException):
-                projects = resources.list_projects()
+                some_resources = client.list_resources(client.base_url + '/some_resources/')
 
             mock_response.raise_for_status.assert_called_once()
+
+
+class TestProjects(unittest.TestCase):
 
     def test_list_projects(self):
         with patch('client.requests.get') as mock_requests_get:
