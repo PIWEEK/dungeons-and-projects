@@ -1,9 +1,13 @@
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
+from rest_framework.decorators import detail_route
+from rest_framework.response import Response
 
 from daprojects_core.models import Project, Module, IssueKind, Issue, Directory
+from daprojects_core.services import init_project, sync_issues
 
 from .serializers import (
-    ProjectSerializer, ModuleSerializer, IssueKindSerializer, IssueSerializer, DirectorySerializer
+    ProjectSerializer, ModuleSerializer, IssueKindSerializer, IssueSerializer, DirectorySerializer,
+    DirectoryTreeSerializer
 )
 
 
@@ -12,6 +16,16 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
     filter_backends = (filters.DjangoFilterBackend,)
     filter_fields = ('slug',)
+
+    @detail_route(methods=['post'])
+    def initialize(self, request, pk=None):
+        project = self.get_object()
+        dir_tree_serializer = DirectoryTreeSerializer(data=request.data, many=True)
+        if dir_tree_serializer.is_valid():
+            init_project(project, dir_tree_serializer.data)
+            return Response({'status': 'Project initialized'})
+        else:
+            return Response(dir_tree_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class ModuleViewSet(viewsets.ModelViewSet):
