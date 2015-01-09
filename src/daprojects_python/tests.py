@@ -97,6 +97,95 @@ class TestProjects(unittest.TestCase):
             self.assertEqual(project.slug, 'test-project-1')
             self.assertEqual(project.description, 'Project description 1')
 
+    def test_initialize_project(self):
+        with patch('client.requests.post') as mock_requests_post:
+            mock_response = Mock()
+            mock_response.json.return_value = '{"status": "Project initialized"}'
+            mock_requests_post.return_value = mock_response
+
+            tree_structure = """
+            [
+                {
+                    "name": "dir-1",
+                    "subdirs" [
+                        {
+                            "name": "dir-1-1",
+                            "subdirs": []
+                        },
+                        {
+                            "name": "dir-1-2",
+                            "subdirs": []
+                        }
+                    ]
+                },
+                {
+                    "name": "dir-2",
+                    "subdirs": []
+                }
+            ]
+            """
+            resources.initialize_project("http://localhost:8000/api/v1/projects/1/", tree_structure)
+
+            mock_requests_post.assert_called_once_with(
+                'http://localhost:8000/api/v1/projects/1/initialize/',
+                data=tree_structure
+            )
+
+    def test_sync_issues(self):
+        with patch('client.requests.post') as mock_requests_post:
+            mock_response = Mock()
+            mock_response.json.return_value = '{"status": "Project synchronized"}'
+            mock_requests_post.return_value = mock_response
+
+            module_structure = """
+            [
+                {
+                    "module": "http://localhost:8000/api/v1/modules/1/",
+                    "issues": [
+                        {
+                            "file_name": "some_file_1.py",
+                            "file_line": null,
+                            "description": "this is one TODO",
+                            "kind": "http://localhost:8000/api/v1/issue_kinds/2",
+                            "size": 3
+                        },
+                        {
+                            "file_name": "some_file_2.py",
+                            "file_line": 33,
+                            "description": "this is other TODO",
+                            "kind": "http://localhost:8000/api/v1/issue_kinds/3",
+                            "size": 5
+                        }
+                    ]
+                    "submodules" [
+                        {
+                            "module": "http://localhost:8000/api/v1/modules/2/",
+                            "issues": []
+                            "submodules": []
+                        },
+                        {
+                            "module": "http://localhost:8000/api/v1/modules/3/",
+                            "issues": []
+                            "submodules": []
+                        }
+                    ]
+                },
+                {
+                    {
+                        "module": "http://localhost:8000/api/v1/modules/4/",
+                        "issues": []
+                        "submodules": []
+                    }
+                }
+            ]
+            """
+            resources.sync_issues("http://localhost:8000/api/v1/projects/1/", module_structure)
+
+            mock_requests_post.assert_called_once_with(
+                'http://localhost:8000/api/v1/projects/1/sync_issues/',
+                data=module_structure
+            )
+
     def _sample_project(self, project_id):
         return {
             "url": "http://localhost:8000/api/v1/projects/{}/".format(project_id),

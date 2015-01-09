@@ -26,3 +26,9 @@ def retrieve_resource(resource_url, resource_class=Resource):
     response.raise_for_status()
     return resource_class(**response.json())
 
+
+def resource_action(action_url, action_data):
+    response = requests.post(action_url, data=action_data)
+    response.raise_for_status()
+    return response.json()
+
