@@ -17,6 +17,24 @@ class DirectoryTreeSerializer(serializers.Serializer):
 DirectoryTreeSerializer._declared_fields['subdirs'] = DirectoryTreeSerializer(many=True)
 
 
+class SyncIssueSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = Issue
+        fields = ('file_name', 'file_line', 'description', 'kind', 'size')
+
+
+class SyncModuleSerializer(serializers.Serializer):
+    module = serializers.HyperlinkedRelatedField(
+        view_name='module-detail',
+        queryset=Module.objects.all(),
+    )
+    issues = SyncIssueSerializer(many=True)
+    class Meta:
+        fields = ('module', 'issues', 'submodules')
+
+SyncModuleSerializer._declared_fields['submodules'] = SyncModuleSerializer(many=True)
+
+
 class ModuleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Module
