@@ -3,12 +3,18 @@ import re
 
 from daprojects_python import resources
 
-def read_tree_structure(root_path, depth = 3):
-    directory_tree = _read_directory_level(root_path, depth)
+DEFAULT_IGNORE_LIST = [
+    '.git',
+    '__pycache__',
+    '.*\.egg-info',
+]
+
+def read_tree_structure(root_path, depth=3, ignore_list=[]):
+    directory_tree = _read_directory_level(root_path, depth, DEFAULT_IGNORE_LIST + ignore_list)
     return directory_tree
 
 
-def _read_directory_level(path, depth):
+def _read_directory_level(path, depth, ignore_list):
     print(path) # TODO: use callback to send the event to the caller
     if depth <= 0:
         return []
@@ -16,10 +22,15 @@ def _read_directory_level(path, depth):
         return [
             {
                 'name': dir_name,
-                'subdirs': _read_directory_level(os.path.join(path, dir_name), depth-1),
+                'subdirs': _read_directory_level(os.path.join(path, dir_name), depth-1, ignore_list),
             }
-            for dir_name in os.listdir(path) if os.path.isdir(os.path.join(path, dir_name))
+            for dir_name in os.listdir(path)
+            if os.path.isdir(os.path.join(path, dir_name)) and not _ignore_matches(dir_name, ignore_list)
         ]
+
+
+def _ignore_matches(file_name, ignore_list):
+    return any([re.match(pattern, file_name) for pattern in ignore_list])
 
 
 def find_module_issues(project, root_path):

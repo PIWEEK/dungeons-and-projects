@@ -28,7 +28,7 @@ def define_args():
         help='HTTP address of the server (by default http://localhost:8000)',
     )
 
-    parser_initialize_project = subparsers.add_parser('initialize_project', parents=[common_parser])
+    parser_initialize_project = subparsers.add_parser('initialize_project', aliases=['init'], parents=[common_parser])
     parser_initialize_project.add_argument('-r', '--source-root',
         type=str,
         default='.',
@@ -39,9 +39,15 @@ def define_args():
         default=3,
         help='Number of tree levels to analyze (by default 3)',
     )
+    parser_initialize_project.add_argument('-i', '--ignore',
+        type=str,
+        action='append',
+        default=[],
+        help='Ignore directories that match the pattern (can specify this multiple times)',
+    )
     parser_initialize_project.set_defaults(func=initialize_project)
 
-    parser_sync_issues = subparsers.add_parser('sync_issues', parents=[common_parser])
+    parser_sync_issues = subparsers.add_parser('sync_issues', aliases=['sync'], parents=[common_parser])
     parser_sync_issues.add_argument('-r', '--source-root',
         type=str,
         default='.',
@@ -57,7 +63,7 @@ def initialize_project(args):
         client.set_host(args.server)
     project = resources.find_project(args.project)
     if project:
-        tree_structure = code_analyzer.read_tree_structure(args.source_root, args.depth)
+        tree_structure = code_analyzer.read_tree_structure(args.source_root, args.depth, args.ignore)
         resources.initialize_project(project.url, tree_structure)
         print('Project {} initialized'.format(project.name))
     else:
