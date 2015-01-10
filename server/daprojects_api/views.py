@@ -20,6 +20,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @detail_route(methods=['post'])
     def initialize(self, request, pk=None):
         project = self.get_object()
+        if project.modules.exists() or project.directories.exists():
+            return Response('The project must be empty', status=status.HTTP_400_BAD_REQUEST)
         dir_tree_serializer = DirectoryTreeSerializer(data=request.data, many=True)
         if dir_tree_serializer.is_valid():
             init_project(project, dir_tree_serializer.validated_data)
