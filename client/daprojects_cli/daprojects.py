@@ -2,9 +2,7 @@
 
 import argparse
 
-from daprojects_python import client, resources
-
-import code_analyzer
+import actions
 
 def define_args():
     main_parser = argparse.ArgumentParser(
@@ -45,7 +43,7 @@ def define_args():
         default=[],
         help='Ignore directories that match the pattern (can specify this multiple times)',
     )
-    parser_initialize_project.set_defaults(func=initialize_project)
+    parser_initialize_project.set_defaults(func=actions.initialize_project)
 
     parser_sync_issues = subparsers.add_parser('sync_issues', aliases=['sync'], parents=[common_parser])
     parser_sync_issues.add_argument('-r', '--source-root',
@@ -53,33 +51,9 @@ def define_args():
         default='.',
         help='Root of the source code directory tree',
     )
-    parser_sync_issues.set_defaults(func=sync_issues)
+    parser_sync_issues.set_defaults(func=actions.sync_issues)
 
     return main_parser
-
-
-def initialize_project(args):
-    if args.server:
-        client.set_host(args.server)
-    project = resources.find_project(args.project)
-    if project:
-        tree_structure = code_analyzer.read_tree_structure(args.source_root, args.depth, args.ignore)
-        resources.initialize_project(project.url, tree_structure)
-        print('Project {} initialized'.format(project.name))
-    else:
-        print('Cannot found a project with slug {}'.format(args.project))
-
-
-def sync_issues(args):
-    if args.server:
-        client.set_host(args.server)
-    project = resources.find_project(args.project)
-    if project:
-        module_structure = code_analyzer.find_module_issues(project, args.source_root)
-        resources.sync_issues(project.url, module_structure)
-        print('Project {} synchronized'.format(project.name))
-    else:
-        print('Cannot found a project with slug {}'.format(args.project))
 
 
 main_parser = define_args()
