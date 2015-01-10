@@ -1,8 +1,7 @@
 import os
 import re
 
-# TODO: configure daprojects_python as an installable app
-import resources
+from daprojects_python import resources
 
 def read_tree_structure(root_path, depth = 3):
     directory_tree = _read_directory_level(root_path, depth)

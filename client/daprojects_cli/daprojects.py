@@ -2,8 +2,7 @@
 
 import argparse
 
-# TODO: configure daprojects_python as an installable app
-import client, resources
+from daprojects_python import client, resources
 
 import code_analyzer
 
@@ -71,7 +70,6 @@ def sync_issues(args):
     project = resources.find_project(args.project)
     if project:
         module_structure = code_analyzer.find_module_issues(project, args.source_root)
-        from ipdb import set_trace; set_trace()
         resources.sync_issues(project.url, module_structure)
         print('Project {} synchronized'.format(project.name))
     else:
