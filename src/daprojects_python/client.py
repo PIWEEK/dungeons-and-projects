@@ -1,4 +1,5 @@
 import requests
+import json
 
 
 class Resource:
@@ -28,7 +29,11 @@ def retrieve_resource(resource_url, resource_class=Resource):
 
 
 def resource_action(action_url, action_data):
-    response = requests.post(action_url, data=action_data)
+    response = requests.post(
+        action_url,
+        data=json.dumps(action_data),
+        headers={'content-type': 'application/json'}
+    )
     response.raise_for_status()
     return response.json()
 

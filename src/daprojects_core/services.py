@@ -51,7 +51,7 @@ def sync_issues(project, modules_issues, filter_kinds=[]):
      - filter_kinds is a list, if not empty only issues of these kinds are deleted
     '''
     for module_data in modules_issues:
-        _sync_issues_module(module_data, project.first_level_modules(), filter_kinds)
+        _sync_issues_module(module_data, project.first_level_modules, filter_kinds)
 
 
 def _sync_issues_module(module_data, level_of_modules, filter_kinds):

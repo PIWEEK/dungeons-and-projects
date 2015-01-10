@@ -28,6 +28,7 @@ class Project(models.Model):
     def __str__(self):
         return _('project "{}"').format(self.name)
 
+    @property
     def first_level_modules(self):
         return self.modules.filter(level=0)
 

@@ -82,6 +82,21 @@ class TestProjects(unittest.TestCase):
             self.assertEqual(projects[1].slug, 'test-project-2')
             self.assertEqual(projects[1].description, 'Project description 2')
 
+    def test_find_project(self):
+        with patch('client.requests.get') as mock_requests_get:
+            mock_response = Mock()
+            mock_response.json.return_value = [self._sample_project(1)]
+            mock_requests_get.return_value = mock_response
+
+            project = resources.find_project("test-project-1")
+
+            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/?slug=test-project-1')
+
+            self.assertEqual(project.url, 'http://localhost:8000/api/v1/projects/1/')
+            self.assertEqual(project.name, 'Test Project 1')
+            self.assertEqual(project.slug, 'test-project-1')
+            self.assertEqual(project.description, 'Project description 1')
+
     def test_retrieve_project(self):
         with patch('client.requests.get') as mock_requests_get:
             mock_response = Mock()

@@ -26,7 +26,7 @@ class ProjectView(TemplateView):
         map = get_map_for_project(project)
         context['project'] = project
         context['map'] = map
-        context['modules_and_placeholders'] = zip(project.first_level_modules(), map.placeholders)
+        context['modules_and_placeholders'] = zip(project.first_level_modules, map.placeholders)
         return context
 
 

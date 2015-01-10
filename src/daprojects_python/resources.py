@@ -7,6 +7,11 @@ def list_projects():
     return client.list_resources(client.base_url + '/projects/')
 
 
+def find_project(project_slug):
+    projects = client.list_resources(client.base_url + '/projects/?slug={}'.format(project_slug))
+    return projects[0] if projects else None
+
+
 def retrieve_project(project_url):
     return client.retrieve_resource(project_url)
 

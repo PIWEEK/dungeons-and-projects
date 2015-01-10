@@ -4,9 +4,14 @@ from daprojects_core.models import Project, Module, IssueKind, Issue, Directory
 
 
 class ProjectSerializer(serializers.HyperlinkedModelSerializer):
+    first_level_modules = serializers.HyperlinkedRelatedField(
+        view_name='module-detail',
+        read_only=True,
+        many=True,
+    )
     class Meta:
         model = Project
-        fields = ('url', 'name', 'slug', 'description')
+        fields = ('url', 'name', 'slug', 'description', 'first_level_modules')
 
 
 class DirectoryTreeSerializer(serializers.Serializer):
@@ -38,7 +43,7 @@ SyncModuleSerializer._declared_fields['submodules'] = SyncModuleSerializer(many=
 class ModuleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Module
-        fields = ('url', 'project', 'parent', 'children', 'name', 'slug', 'description', 'directories', 'issues')
+        fields = ('url', 'project', 'parent', 'children', 'name', 'slug', 'path', 'description', 'directories', 'issues')
 
 
 class IssueKindSerializer(serializers.HyperlinkedModelSerializer):
@@ -56,5 +61,5 @@ class IssueSerializer(serializers.HyperlinkedModelSerializer):
 class DirectorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Directory
-        fields = ('url', 'project', 'parent', 'children', 'slug', 'modules')
+        fields = ('url', 'project', 'parent', 'children', 'slug', 'path', 'modules')
 

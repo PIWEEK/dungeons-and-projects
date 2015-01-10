@@ -1,51 +1,43 @@
-from django.core.management.base import BaseCommand, CommandError
-
 import os
 import re
-import random
 
-from daprojects_core import models, services
+# TODO: configure daprojects_python as an installable app
+import resources
 
-
-class Command(BaseCommand):
-    args = '<project_slug> <filesystem_root>'
-    help = '''
-    Search the filesystem for specific comments (see kinds) and create issues for them.
-    '''
-
-    def handle(self, *args, **options):
-        if len(args) != 2:
-            raise CommandError('You must specify project slug and filesystem root.')
-
-        random.seed(69)
-
-        project_slug = args[0]
-        try:
-            project = models.Project.objects.get(slug=project_slug)
-        except models.Project.DoesNotExist:
-            raise CommandError('Cannot find a project with slug "{}"'.format(project_slug))
-
-        filesystem_root = args[1]
-        if not os.access(filesystem_root, os.R_OK):
-            raise CommandError('Cannot read path "{}"'.format(filesystem_root))
-
-        sync_issues_with_filesystem(project, filesystem_root)
+def read_tree_structure(root_path, depth = 3):
+    directory_tree = _read_directory_level(root_path, depth)
+    return directory_tree
 
 
-def sync_issues_with_filesystem(project, root_path):
+def _read_directory_level(path, depth):
+    print(path) # TODO: use callback to send the event to the caller
+    if depth <= 0:
+        return []
+    else:
+        return [
+            {
+                'name': dir_name,
+                'subdirs': _read_directory_level(os.path.join(path, dir_name), depth-1),
+            }
+            for dir_name in os.listdir(path) if os.path.isdir(os.path.join(path, dir_name))
+        ]
+
+
+def find_module_issues(project, root_path):
     '''
     Search the filesystem for specific comments (see kinds) and create issues for them.
     '''
-    modules_issues = _analyze_modules(project.first_level_modules, root_path)
-    services.sync_issues(project, modules_issues)
+    modules = [resources.retrieve_module(m) for m in project.first_level_modules]
+    module_structure = _analyze_modules(modules, root_path)
+    return module_structure
 
 
 def _analyze_modules(modules, root_path):
     return [
         {
-            'module': module,
+            'module': module.url,
             'issues': _analyze_module(module, root_path),
-            'submodules': _analyze_modules(module.get_children(), root_path),
+            'submodules': _analyze_modules([resources.retrieve_module(sm) for sm in module.children], root_path),
         }
         for module in modules
     ]
@@ -54,7 +46,7 @@ def _analyze_modules(modules, root_path):
 def _analyze_module(module, root_path):
     issues = []
 
-    for directory in module.directories.all():
+    for directory in [resources.retrieve_directory(d) for d in module.directories]:
         for filename in os.listdir(os.path.join(root_path, directory.path)):
             issues.extend(
                 _analyze_file(module, os.path.join(root_path, directory.path, filename))
@@ -93,21 +85,21 @@ def _analyze_file_regex(module, file_path, regexps):
     with open(file_path, 'r') as file:
         content = file.read()
         for regexp in regexps:
-            for issue_kind in models.IssueKind.objects.all():
+            for issue_kind in resources.list_issue_kinds():
                 for match in re.finditer(regexp.format(issue_kind.name), content):
                     issues.append({
-                        'module': module,
+                        'module': module.url,
                         'file_name': os.path.basename(file_path),
                         'file_line': None, # TODO: calculate file line
                         'description': match.group(1),
-                        'kind': issue_kind,
-                        'size': random.randint(1, 5), # TODO: read size from comment text
+                        'kind': issue_kind.url,
+                        'size': 1,
                     })
                     # TODO: use callback to send the event to the caller
                     print('{} - {} {}'.format(
-                        issues[-1]['module'].path,
+                        module.path,
                         issues[-1]['size'],
-                        issues[-1]['kind'].name,
+                        issue_kind.name,
                     ))
 
     return issues
