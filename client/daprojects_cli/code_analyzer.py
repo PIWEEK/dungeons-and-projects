@@ -74,43 +74,68 @@ def _analyze_file(module, file_path):
     elif ext == '.html':
         return _analyze_file_html(module, file_path)
     else:
+        # TODO: add more source code file types
         return []
 
 
 def _analyze_file_python(module, file_path):
-    return _analyze_file_regex(module, file_path, ['# *{}:? *(.*)'])
+    return _analyze_file_regex(module, file_path, [r'# *{}:? *(.*)'])
 
 
 def _analyze_file_coffeescript(module, file_path):
-    return _analyze_file_regex(module, file_path, ['# *{}:? *(.*)'])
+    return _analyze_file_regex(module, file_path, [r'# *{}:? *(.*)'])
 
 
 def _analyze_file_html(module, file_path):
-    return _analyze_file_regex(module, file_path, ['<!-- *{}:? *(.*) -->', '{{# *{}:? *(.*) *#}}', '{{% comment %}} *(.*) *{{% endcomment %}}'])
+    return _analyze_file_regex(module, file_path, [
+        r'<!-- *{}:? *(.*)( -->)?.*',
+        r'{{# *{}:? *(.*)( *#}})?.*',
+        r'{{% *comment *%}} *{}:? *(.*) *{{% *endcomment *%}}.*'
+    ])
 
 
 def _analyze_file_regex(module, file_path, regexps):
+    # TODO: move this to a more external context, to not load it for each analyzed file
+    kind_exps = [
+        (issue_kind, [re.compile(regexp.format(issue_kind.name)) for regexp in regexps])
+        for issue_kind in resources.list_issue_kinds()
+    ]
+
     issues = []
 
     with open(file_path, 'r') as file:
-        content = file.read()
-        for regexp in regexps:
-            for issue_kind in resources.list_issue_kinds():
-                for match in re.finditer(regexp.format(issue_kind.name), content):
-                    issues.append({
-                        'module': module.url,
-                        'file_name': os.path.basename(file_path),
-                        'file_line': None, # TODO: calculate file line
-                        'description': match.group(1),
-                        'kind': issue_kind.url,
-                        'size': 1,
-                    })
-                    # TODO: use callback to send the event to the caller
-                    print('{} - {} {}'.format(
-                        module.path,
-                        issues[-1]['size'],
-                        issue_kind.name,
-                    ))
+        for i, line in enumerate(file.readlines()):
+            for (issue_kind, exps) in kind_exps:
+                for exp in exps:
+                    for match in exp.finditer(line):
+                        _add_issue(
+                            issues,
+                            module,
+                            file_name=os.path.basename(file_path),
+                            file_line=i+1,
+                            description=match.group(1),
+                            issue_kind=issue_kind,
+                            size=1,
+                        )
 
     return issues
+
+
+def _add_issue(issues, module, file_name, file_line, description, issue_kind, size):
+    issues.append({
+        'module': module.url,
+        'file_name': file_name,
+        'file_line': file_line,
+        'description': description,
+        'kind': issue_kind.url,
+        'size': size,
+    })
+    # TODO: use callback to send the event to the caller
+    print('{}: {}({}) - {} {}'.format(
+        module.path,
+        file_name,
+        file_line,
+        size,
+        issue_kind.name,
+    ))
 
