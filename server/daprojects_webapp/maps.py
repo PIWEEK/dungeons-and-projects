@@ -52,6 +52,6 @@ _maps = [
 
 
 def get_map_for_project(project):
-    # TODO: create a model for project visualization options, and let the user choose the map.
+    # TODO 1: create a model for project visualization options, and let the user choose the map.
     return _maps[(project.id - 1) % len(_maps)]
 

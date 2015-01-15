@@ -79,23 +79,23 @@ def _analyze_file(module, file_path):
 
 
 def _analyze_file_python(module, file_path):
-    return _analyze_file_regex(module, file_path, [r'# *{}:? *(.*)'])
+    return _analyze_file_regex(module, file_path, [r'# *{} *(?P<size>[1-5]?):? *(?P<description>.*)'])
 
 
 def _analyze_file_coffeescript(module, file_path):
-    return _analyze_file_regex(module, file_path, [r'# *{}:? *(.*)'])
+    return _analyze_file_regex(module, file_path, [r'# *{} *(?P<size>[1-5]?):? *(?P<description>.*)'])
 
 
 def _analyze_file_html(module, file_path):
     return _analyze_file_regex(module, file_path, [
-        r'<!-- *{}:? *(.*)( -->)?.*',
-        r'{{# *{}:? *(.*)( *#}})?.*',
-        r'{{% *comment *%}} *{}:? *(.*) *{{% *endcomment *%}}.*'
+        r'<!-- *{} *(?P<size>[1-5]?):? *(?P<description>.*)( -->)?.*',
+        r'{{# *{} *(?P<size>[1-5]?):? *(?P<description>.*)( *#}})?.*',
+        r'{{% *comment *%}} *{} *(?P<size>[1-5]?):? *(?P<description>.*) *{{% *endcomment *%}}.*'
     ])
 
 
 def _analyze_file_regex(module, file_path, regexps):
-    # TODO: move this to a more external context, to not load it for each analyzed file
+    # TODO: move this to a more external context, for it not to be loaded for each analyzed file
     kind_exps = [
         (issue_kind, [re.compile(regexp.format(issue_kind.name)) for regexp in regexps])
         for issue_kind in resources.list_issue_kinds()
@@ -113,9 +113,9 @@ def _analyze_file_regex(module, file_path, regexps):
                             module,
                             file_name=os.path.basename(file_path),
                             file_line=i+1,
-                            description=match.group(1),
+                            description=match.group('description'),
                             issue_kind=issue_kind,
-                            size=1,
+                            size=int(match.group('size')) if match.group('size') else None,
                         )
 
     return issues

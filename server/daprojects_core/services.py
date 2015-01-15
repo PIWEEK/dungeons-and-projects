@@ -58,7 +58,7 @@ def _sync_issues_module(module_data, level_of_modules, filter_kinds):
     module = module_data['module']
     assert(module in level_of_modules)
 
-    # TODO: synchronize instead of replacing
+    # TODO 2: synchronize instead of replacing
     issues = module.issues.all()
     if filter_kinds:
         issues = issues.filter(kind__name__in=filter_kinds)

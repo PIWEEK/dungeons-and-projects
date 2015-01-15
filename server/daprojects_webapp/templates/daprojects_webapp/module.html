@@ -27,8 +27,13 @@
                                 <div class="dungeon_left"></div>
                                 <div class="dungeon_body">
                                     {% for issue in module.issues.all %}
-                                        <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}-{{ issue.size }}.png"
-                                             title="{{ issue.kind.name }} [{{ issue.size }}] - {{ issue.description }}" />
+                                        {% if issue.size %}
+                                            <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}-{{ issue.size }}.png"
+                                                 title="{{ issue.kind.name }} [{{ issue.size }}] - {{ issue.description }}" />
+                                        {% else %}
+                                            <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}.png"
+                                                 title="{{ issue.kind.name }} - {{ issue.description }}" />
+                                        {% endif %}
                                     {% endfor %}
                                 </div>
                                 <div class="dungeon_right"></div>
@@ -50,8 +55,13 @@
                                 <div class="dungeon_left"></div>
                                 <div class="dungeon_body">
                                     {% for issue in child_module.nested_issues %}
-                                        <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}-{{ issue.size }}.png"
-                                             title="{{ issue.kind.name }} [{{ issue.size }}] - {{ issue.description }}" />
+                                        {% if issue.size %}
+                                            <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}-{{ issue.size }}.png"
+                                                 title="{{ issue.kind.name }} [{{ issue.size }}] - {{ issue.description }}" />
+                                        {% else %}
+                                            <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}.png"
+                                                 title="{{ issue.kind.name }} - {{ issue.description }}" />
+                                        {% endif %}
                                     {% endfor %}
                                 </div>
                                 <div class="dungeon_right"></div>

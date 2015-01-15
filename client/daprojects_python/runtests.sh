@@ -1,2 +1,2 @@
 #!/bin/sh
-python -m unittest tests
+python -m unittest daprojects_python.tests

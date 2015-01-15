@@ -120,7 +120,7 @@ class Issue(models.Model):
         verbose_name=_('Kind')
     )
     size = models.PositiveSmallIntegerField(
-        blank=False, null=False,
+        blank=True, null=True,
         choices=(
             (1, 'level 1'),
             (2, 'level 2'),

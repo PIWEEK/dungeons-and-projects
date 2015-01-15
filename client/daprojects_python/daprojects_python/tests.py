@@ -1,10 +1,11 @@
 import unittest
+import json
 from unittest.mock import Mock, patch
 from collections import namedtuple
 from requests import exceptions
 
-import client
-import resources
+from . import client
+from . import resources
 
 
 class TestClient(unittest.TestCase):
@@ -12,7 +13,7 @@ class TestClient(unittest.TestCase):
     def test_set_base_url(self):
         client.set_host('https://example.com:9090')
 
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = []
             mock_requests_get.return_value = mock_response
@@ -25,7 +26,7 @@ class TestClient(unittest.TestCase):
         client.set_host('http://localhost:8000')
 
     def test_error_checking(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.raise_for_status.side_effect = exceptions.RequestException('Not Found')
             mock_requests_get.return_value = mock_response
@@ -41,7 +42,7 @@ class TestClient(unittest.TestCase):
             def some_method(self):
                 return self.a + self.b
 
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = {
                 "url": 'http://localhost:8000/api/v1/some_resources/1/',
@@ -60,7 +61,7 @@ class TestClient(unittest.TestCase):
 class TestProjects(unittest.TestCase):
 
     def test_list_projects(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = [
                 self._sample_project(1),
@@ -83,7 +84,7 @@ class TestProjects(unittest.TestCase):
             self.assertEqual(projects[1].description, 'Project description 2')
 
     def test_find_project(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = [self._sample_project(1)]
             mock_requests_get.return_value = mock_response
@@ -98,7 +99,7 @@ class TestProjects(unittest.TestCase):
             self.assertEqual(project.description, 'Project description 1')
 
     def test_retrieve_project(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = self._sample_project(1)
             mock_requests_get.return_value = mock_response
@@ -113,7 +114,7 @@ class TestProjects(unittest.TestCase):
             self.assertEqual(project.description, 'Project description 1')
 
     def test_initialize_project(self):
-        with patch('client.requests.post') as mock_requests_post:
+        with patch('daprojects_python.client.requests.post') as mock_requests_post:
             mock_response = Mock()
             mock_response.json.return_value = '{"status": "Project initialized"}'
             mock_requests_post.return_value = mock_response
@@ -143,11 +144,13 @@ class TestProjects(unittest.TestCase):
 
             mock_requests_post.assert_called_once_with(
                 'http://localhost:8000/api/v1/projects/1/initialize/',
-                data=tree_structure
+                headers={'content-type': 'application/json'},
+                data=json.dumps(tree_structure),
             )
 
+
     def test_sync_issues(self):
-        with patch('client.requests.post') as mock_requests_post:
+        with patch('daprojects_python.client.requests.post') as mock_requests_post:
             mock_response = Mock()
             mock_response.json.return_value = '{"status": "Project synchronized"}'
             mock_requests_post.return_value = mock_response
@@ -169,7 +172,7 @@ class TestProjects(unittest.TestCase):
                             "file_line": 33,
                             "description": "this is other TODO",
                             "kind": "http://localhost:8000/api/v1/issue_kinds/3",
-                            "size": 5
+                            "size": None
                         }
                     ]
                     "submodules" [
@@ -198,7 +201,8 @@ class TestProjects(unittest.TestCase):
 
             mock_requests_post.assert_called_once_with(
                 'http://localhost:8000/api/v1/projects/1/sync_issues/',
-                data=module_structure
+                headers={'content-type': 'application/json'},
+                data=json.dumps(module_structure),
             )
 
     def _sample_project(self, project_id):
@@ -213,7 +217,7 @@ class TestProjects(unittest.TestCase):
 class TestModules(unittest.TestCase):
 
     def test_list_modules(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = [
                 self._sample_module(1),
@@ -246,7 +250,7 @@ class TestModules(unittest.TestCase):
             self.assertEqual(modules[1].issues, [])
 
     def test_retrieve_module(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = self._sample_module(1)
             mock_requests_get.return_value = mock_response
@@ -305,7 +309,7 @@ class TestModules(unittest.TestCase):
 class TestIssueKinds(unittest.TestCase):
 
     def test_list_issue_kinds(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = [
                 self._sample_issue_kind(1),
@@ -324,7 +328,7 @@ class TestIssueKinds(unittest.TestCase):
             self.assertEqual(issue_kinds[1].name, 'Test IssueKind 2')
 
     def test_retrieve_issue_kind(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = self._sample_issue_kind(1)
             mock_requests_get.return_value = mock_response
@@ -346,7 +350,7 @@ class TestIssueKinds(unittest.TestCase):
 class TestIssues(unittest.TestCase):
 
     def test_list_issues(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = [
                 self._sample_issue(1),
@@ -365,7 +369,7 @@ class TestIssues(unittest.TestCase):
             self.assertEqual(issues[0].file_name, 'file-name-1.py')
             self.assertEqual(issues[0].file_line, 667)
             self.assertEqual(issues[0].kind, 'http://localhost:8000/api/v1/issue_kinds/1/')
-            self.assertEqual(issues[0].size, 1000)
+            self.assertEqual(issues[0].size, 1)
             self.assertEqual(issues[0].description, 'Issue description 1')
             self.assertEqual(issues[1].url, 'http://localhost:8000/api/v1/issues/2/')
             self.assertEqual(issues[1].module, 'http://localhost:8000/api/v1/modules/1/')
@@ -373,11 +377,11 @@ class TestIssues(unittest.TestCase):
             self.assertEqual(issues[1].file_name, 'file-name-2.py')
             self.assertEqual(issues[1].file_line, 668)
             self.assertEqual(issues[1].kind, 'http://localhost:8000/api/v1/issue_kinds/1/')
-            self.assertEqual(issues[1].size, 1001)
+            self.assertEqual(issues[1].size, 2)
             self.assertEqual(issues[1].description, 'Issue description 2')
 
     def test_retrieve_issue(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = self._sample_issue(1)
             mock_requests_get.return_value = mock_response
@@ -392,7 +396,7 @@ class TestIssues(unittest.TestCase):
             self.assertEqual(issue.file_name, 'file-name-1.py')
             self.assertEqual(issue.file_line, 667)
             self.assertEqual(issue.kind, 'http://localhost:8000/api/v1/issue_kinds/1/')
-            self.assertEqual(issue.size, 1000)
+            self.assertEqual(issue.size, 1)
             self.assertEqual(issue.description, 'Issue description 1')
 
     def test_issue_module(self):
@@ -412,14 +416,14 @@ class TestIssues(unittest.TestCase):
             "file_line": 666 + issue_id,
             "description": "Issue description {}".format(issue_id),
             "kind": "http://localhost:8000/api/v1/issue_kinds/{}/".format(issue_kind_id),
-            "size": 999 + issue_id,
+            "size": (issue_id - 1) % 5 + 1,
         }
 
 
 class TestDirectories(unittest.TestCase):
 
     def test_list_directories(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = [
                 self._sample_directory(1),
@@ -446,7 +450,7 @@ class TestDirectories(unittest.TestCase):
             self.assertEqual(directories[1].modules, [])
 
     def test_retrieve_directory(self):
-        with patch('client.requests.get') as mock_requests_get:
+        with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = self._sample_directory(1)
             mock_requests_get.return_value = mock_response
