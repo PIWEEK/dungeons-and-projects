@@ -29,10 +29,10 @@
                                     {% for issue in module.issues.all %}
                                         {% if issue.size %}
                                             <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}-{{ issue.size }}.png"
-                                                 title="{{ issue.kind.name }} [{{ issue.size }}] - {{ issue.description }}" />
+                                                 title="{{ issue.display }}" />
                                         {% else %}
                                             <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}.png"
-                                                 title="{{ issue.kind.name }} - {{ issue.description }}" />
+                                                 title="{{ issue.display }}" />
                                         {% endif %}
                                     {% endfor %}
                                 </div>
@@ -57,10 +57,10 @@
                                     {% for issue in child_module.nested_issues %}
                                         {% if issue.size %}
                                             <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}-{{ issue.size }}.png"
-                                                 title="{{ issue.kind.name }} [{{ issue.size }}] - {{ issue.description }}" />
+                                                 title="{{ issue.display }}" />
                                         {% else %}
                                             <img src="{% static 'images/monsters/' %}{{ issue.kind.name }}.png"
-                                                 title="{{ issue.kind.name }} - {{ issue.description }}" />
+                                                 title="{{ issue.display }}" />
                                         {% endif %}
                                     {% endfor %}
                                 </div>

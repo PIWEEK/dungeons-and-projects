@@ -14,32 +14,6 @@ class ProjectSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('url', 'name', 'slug', 'description', 'first_level_modules')
 
 
-class DirectoryTreeSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=255)
-
-# You cannot declare a field whose type is the same serializer, so we add it later.
-# See http://stackoverflow.com/questions/13376894/django-rest-framework-nested-self-referential-objects
-DirectoryTreeSerializer._declared_fields['subdirs'] = DirectoryTreeSerializer(many=True)
-
-
-class SyncIssueSerializer(serializers.HyperlinkedModelSerializer):
-    class Meta:
-        model = Issue
-        fields = ('file_name', 'file_line', 'description', 'kind', 'size')
-
-
-class SyncModuleSerializer(serializers.Serializer):
-    module = serializers.HyperlinkedRelatedField(
-        view_name='module-detail',
-        queryset=Module.objects.all(),
-    )
-    issues = SyncIssueSerializer(many=True)
-    class Meta:
-        fields = ('module', 'issues', 'submodules')
-
-SyncModuleSerializer._declared_fields['submodules'] = SyncModuleSerializer(many=True)
-
-
 class ModuleSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Module
@@ -61,5 +35,34 @@ class IssueSerializer(serializers.HyperlinkedModelSerializer):
 class DirectorySerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Directory
-        fields = ('url', 'project', 'parent', 'children', 'slug', 'path', 'modules')
+        fields = ('url', 'project', 'parent', 'children', 'slug', 'path', 'modules', 'is_leaf_node')
+
+
+class DirectoryTreeSerializer(serializers.Serializer):
+    '''For project directory initialization'''
+    name = serializers.CharField(max_length=255)
+
+# You cannot declare a field whose type is the same serializer, so we add it later.
+# See http://stackoverflow.com/questions/13376894/django-rest-framework-nested-self-referential-objects
+DirectoryTreeSerializer._declared_fields['subdirs'] = DirectoryTreeSerializer(many=True)
+
+
+class SyncIssueSerializer(serializers.HyperlinkedModelSerializer):
+    '''For issues synchronization'''
+    class Meta:
+        model = Issue
+        fields = ('file_name', 'file_line', 'description', 'kind', 'size')
+
+
+class SyncModuleSerializer(serializers.Serializer):
+    '''For issues synchronization'''
+    module = serializers.HyperlinkedRelatedField(
+        view_name='module-detail',
+        queryset=Module.objects.all(),
+    )
+    issues = SyncIssueSerializer(many=True)
+    class Meta:
+        fields = ('module', 'issues', 'submodules')
+
+SyncModuleSerializer._declared_fields['submodules'] = SyncModuleSerializer(many=True)
 

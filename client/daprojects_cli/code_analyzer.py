@@ -15,7 +15,7 @@ def read_tree_structure(root_path, depth=3, ignore_list=[]):
 
 
 def _read_directory_level(path, depth, ignore_list):
-    print(path) # TODO: use callback to send the event to the caller
+    print(path) # TODO 1: use callback to send the event to the caller
     if depth <= 0:
         return []
     else:
@@ -57,12 +57,19 @@ def _analyze_module(module, root_path):
     issues = []
 
     for directory in [resources.retrieve_directory(d) for d in module.directories]:
-        for filename in os.listdir(os.path.join(root_path, directory.path)):
-            issues.extend(
-                _analyze_file(module, os.path.join(root_path, directory.path, filename))
-            )
+        _analyze_dir(module, os.path.join(root_path, directory.path), directory.is_leaf_node, issues)
 
     return issues
+
+
+def _analyze_dir(module, dir_path, recursive, issues):
+    for filename in [f for f in os.listdir(dir_path) if os.path.isfile(os.path.join(dir_path, f))]:
+        issues.extend(
+            _analyze_file(module, os.path.join(dir_path, filename))
+        )
+    if recursive:
+        for subdir in [d for d in os.listdir(dir_path) if os.path.isdir(os.path.join(dir_path, d))]:
+            _analyze_dir(module, os.path.join(dir_path, subdir), True, issues)
 
 
 def _analyze_file(module, file_path):
@@ -88,14 +95,14 @@ def _analyze_file_coffeescript(module, file_path):
 
 def _analyze_file_html(module, file_path):
     return _analyze_file_regex(module, file_path, [
-        r'<!-- *{} *(?P<size>[1-5]?):? *(?P<description>.*)( -->)?.*',
-        r'{{# *{} *(?P<size>[1-5]?):? *(?P<description>.*)( *#}})?.*',
+        r'<!-- *{} *(?P<size>[1-5]?):? *(?P<description>.*) *-->.*',
+        r'{{# *{} *(?P<size>[1-5]?):? *(?P<description>.*) *#}}.*',
         r'{{% *comment *%}} *{} *(?P<size>[1-5]?):? *(?P<description>.*) *{{% *endcomment *%}}.*'
     ])
 
 
 def _analyze_file_regex(module, file_path, regexps):
-    # TODO: move this to a more external context, for it not to be loaded for each analyzed file
+    # TODO 3: move this to a more external context, for it not to be loaded for each analyzed file
     kind_exps = [
         (issue_kind, [re.compile(regexp.format(issue_kind.name)) for regexp in regexps])
         for issue_kind in resources.list_issue_kinds()
@@ -130,7 +137,7 @@ def _add_issue(issues, module, file_name, file_line, description, issue_kind, si
         'kind': issue_kind.url,
         'size': size,
     })
-    # TODO: use callback to send the event to the caller
+    # TODO 1: use callback to send the event to the caller
     print('{}: {}({}) - {} {}'.format(
         module.path,
         file_name,

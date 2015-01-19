@@ -139,6 +139,14 @@ class Issue(models.Model):
     def __str__(self):
         return _('Issue {} - {} {}').format(self.module.path, self.size, self.kind.name)
 
+    def display(self):
+        return '{}{}{}{}'.format(
+            self.kind.name,
+            ' [{}]'.format(self.size) if self.size else '',
+            ' - {}'.format(self.description) if self.description else '',
+            ' ({}{})'.format(self.file_name, ':{}'.format(self.file_line) if self.file_line else '') if self.file_name else ''
+        )
+
 
 class Directory(MPTTModel):
     project = models.ForeignKey('Project',
