@@ -126,16 +126,19 @@ class TestProjects(unittest.TestCase):
                     "subdirs" [
                         {
                             "name": "dir-1-1",
+                            "size": 100,
                             "subdirs": []
                         },
                         {
                             "name": "dir-1-2",
+                            "size": 200,
                             "subdirs": []
                         }
                     ]
                 },
                 {
                     "name": "dir-2",
+                    "size": null,
                     "subdirs": []
                 }
             ]

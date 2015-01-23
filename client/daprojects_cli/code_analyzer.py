@@ -19,7 +19,7 @@ def _read_directory_level(path, depth, ignore_list):
     if depth <= 0:
         return []
     else:
-        return [
+        directory_level = [
             {
                 'name': dir_name,
                 'subdirs': _read_directory_level(os.path.join(path, dir_name), depth-1, ignore_list),
@@ -27,10 +27,30 @@ def _read_directory_level(path, depth, ignore_list):
             for dir_name in os.listdir(path)
             if os.path.isdir(os.path.join(path, dir_name)) and not _ignore_matches(dir_name, ignore_list)
         ]
+        for directory in directory_level:
+            directory['size'] = (
+                _directory_size(os.path.join(path, directory['name'])) +
+                sum((subdir['size'] for subdir in directory['subdirs'])) +
+                (_recursive_subdir_size(os.path.join(path, directory['name']), ignore_list) if depth == 1 else 0)
+            )
 
+        return directory_level
 
 def _ignore_matches(file_name, ignore_list):
     return any([re.match(pattern, file_name) for pattern in ignore_list])
+
+
+def _directory_size(path):
+    # Simple approach: directory size is the number of entries inside it
+    return len(os.listdir(path))
+
+
+def _recursive_subdir_size(path, ignore_list):
+    return sum([
+        _directory_size(os.path.join(path, subdir)) + _recursive_subdir_size(os.path.join(path, subdir), ignore_list)
+        for subdir in os.listdir(path)
+        if os.path.isdir(os.path.join(path, subdir)) and not _ignore_matches(subdir, ignore_list)
+    ])
 
 
 def find_module_issues(project, root_path):

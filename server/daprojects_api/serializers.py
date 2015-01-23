@@ -41,6 +41,7 @@ class DirectorySerializer(serializers.HyperlinkedModelSerializer):
 class DirectoryTreeSerializer(serializers.Serializer):
     '''For project directory initialization'''
     name = serializers.CharField(max_length=255)
+    size = serializers.IntegerField()
 
 # You cannot declare a field whose type is the same serializer, so we add it later.
 # See http://stackoverflow.com/questions/13376894/django-rest-framework-nested-self-referential-objects

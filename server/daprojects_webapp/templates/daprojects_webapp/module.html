@@ -19,7 +19,11 @@
                 {% if module.issues.all %}
                     <div class="city_building">
                         <a href="#">
-                            <img src="{% static 'images/city/building_'%}2.png" /><!-- TODO: define module size to choose building type -->
+                            {% if module.size %}
+                                <img src="{% static 'images/city/building_'%}{{ module.size}}.png" />
+                            {% else %}
+                                <img src="{% static 'images/city/building_'%}2.png" />
+                            {% endif %}
                             <div class="building_name"><p>{% if module.name %}{{ module.name }}{% else %}{{ module.slug }}{% endif %}</p></div>
                         </a>
                         <div class="dungeon">
@@ -47,7 +51,11 @@
                 {% for child_module in module.get_children|slice:'5' %}
                     <div class="city_building">
                         <a href="#">
-                            <img src="{% static 'images/city/building_'%}{% cycle '1' '2' '3' %}.png" /><!-- TODO: define module size to choose building type -->
+                            {% if child_module.size %}
+                                <img src="{% static 'images/city/building_'%}{{ child_module.size}}.png" />
+                            {% else %}
+                                <img src="{% static 'images/city/building_'%}{% cycle '1' '2' '3' %}.png" />
+                            {% endif %}
                             <div class="building_name"><p>{% if child_module.name %}{{ child_module.name }}{% else %}{{ child_module.slug }}{% endif %}</p></div>
                         </a>
                         <div class="dungeon">

@@ -56,6 +56,15 @@ class Module(MPTTModel):
         blank=True, null=False,
         verbose_name=_('Description')
     )
+    size = models.PositiveSmallIntegerField(
+        blank=True, null=True,
+        choices=(
+            (1, 'size 1'),
+            (2, 'size 2'),
+            (3, 'size 3'),
+        ),
+        verbose_name=_('Size')
+    )
 
     class Meta:
         verbose_name = _('Module')
@@ -106,7 +115,7 @@ class Issue(models.Model):
         max_length=255, blank=True, null=False,  # issues may have no file
         verbose_name=_('File name')
     )
-    file_line = models.IntegerField(
+    file_line = models.PositiveSmallIntegerField(
         blank=True, null=True,
         verbose_name=_('File line')
     )
@@ -162,6 +171,10 @@ class Directory(MPTTModel):
     slug = models.SlugField(
         max_length=255, blank=False, null=False,
         verbose_name=_('Slug')
+    )
+    size = models.PositiveSmallIntegerField(
+        blank=True, null=True,
+        verbose_name=_('Arbitrary measure of directory size')
     )
     modules = models.ManyToManyField('Module',
         blank=True, null=True,

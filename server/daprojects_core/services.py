@@ -10,11 +10,15 @@ def init_project(project, directory_tree):
 
       - directory_tree is a list with the first level directories, each one having
         - name: the name of the directory
+        - size: arbitrary size measure (e.g. number of files inside)
         - subdirs: a list of subdirectories, recursively with the same structure
     '''
     if project.modules.exists() or project.directories.exists():
         raise ValueError('The project must be empty')
+
     _init_project_level(project, None, None, directory_tree)
+
+    _calculate_module_sizes(project)
 
 
 def _init_project_level(project, parent_module, parent_dir, dir_level):
@@ -23,14 +27,55 @@ def _init_project_level(project, parent_module, parent_dir, dir_level):
             project = project,
             parent = parent_dir,
             slug = dir_data['name'],
+            size = dir_data['size'],
         )
         module = models.Module.objects.create(
             project = project,
             parent = parent_module,
             slug = dir_data['name'],
+            size = 1, # This is calculated later
         )
         directory.modules.add(module)
         _init_project_level(project, module, directory, dir_data['subdirs'])
+
+
+def _calculate_module_sizes(project):
+    size_limits = {'min': 999999999, 'max': 0}
+    _initialize_module_sizes(project.first_level_modules.all(), size_limits)
+    _make_sizes_proportional(
+        project.first_level_modules.all(),
+        size_limits['min'],
+        size_limits['max'] - size_limits['min'] + 0.1
+    )
+
+
+def _initialize_module_sizes(modules, size_limits):
+    for module in modules:
+        module.size = sum([dir.size for dir in module.directories.all() if dir.size != None])
+        module.save()
+
+        if module.size > 0:
+            if module.size < size_limits['min']:
+                size_limits['min'] = module.size
+            if module.size > size_limits['max']:
+                size_limits['max'] = module.size
+
+        _initialize_module_sizes(module.children.all(), size_limits)
+
+
+def _make_sizes_proportional(modules, size_min, size_range):
+    # Convert sizes from arbitrary range to 1, 2 ,3
+    for module in modules:
+        if size_range > 0 and size_range < 999999999:
+            print('< ', module.size)
+            module.size = int((module.size - size_min) / size_range * 3) + 1
+            print('> ', module.size)
+            print('---')
+        else:
+            import random # If no module has real size, set it randomly
+            module.size = random.choice([1,2,3])
+        module.save()
+        _make_sizes_proportional(module.children.all(), size_min, size_range)
 
 
 def sync_issues(project, modules_issues, filter_kinds=[]):
