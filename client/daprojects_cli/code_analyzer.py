@@ -41,8 +41,13 @@ def _ignore_matches(file_name, ignore_list):
 
 
 def _directory_size(path):
-    # Simple approach: directory size is the number of entries inside it
-    return len(os.listdir(path))
+    # Simple approach: directory size is the number of source code files inside it
+    # TODO 4: make a modular approach to allow adding file extensions by plugins
+    return len([
+        entry for entry in os.listdir(path)
+        if os.path.isfile(os.path.join(path, entry))
+           and any([re.match(pattern, entry) for pattern in ['.*\.py$','.*\.coffee$',  '.*\.html$']])
+    ])
 
 
 def _recursive_subdir_size(path, ignore_list):

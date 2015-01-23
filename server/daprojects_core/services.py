@@ -40,13 +40,11 @@ def _init_project_level(project, parent_module, parent_dir, dir_level):
 
 
 def _calculate_module_sizes(project):
-    size_limits = {'min': 999999999, 'max': 0}
+    size_limits = {}
     _initialize_module_sizes(project.first_level_modules.all(), size_limits)
-    _make_sizes_proportional(
-        project.first_level_modules.all(),
-        size_limits['min'],
-        size_limits['max'] - size_limits['min'] + 0.1
-    )
+    _calculate_ranges(size_limits)
+    for level, sizes in size_limits.items():
+    _make_sizes_proportional(project.first_level_modules.all(), size_limits)
 
 
 def _initialize_module_sizes(modules, size_limits):
@@ -55,27 +53,33 @@ def _initialize_module_sizes(modules, size_limits):
         module.save()
 
         if module.size > 0:
-            if module.size < size_limits['min']:
-                size_limits['min'] = module.size
-            if module.size > size_limits['max']:
-                size_limits['max'] = module.size
+            if not module.level in size_limits:
+                size_limits[module.level] = {'min': 999999999, 'max': 0}
+            if module.size < size_limits[module.level]['min']:
+                size_limits[module.level]['min'] = module.size
+            if module.size > size_limits[module.level]['max']:
+                size_limits[module.level]['max'] = module.size
 
         _initialize_module_sizes(module.children.all(), size_limits)
 
 
-def _make_sizes_proportional(modules, size_min, size_range):
+def _calculate_ranges(size_limits):
+    for level, limits in size_limits.items():
+        limits['range'] = limits['max'] - limits['min'] + 0.1
+
+
+def _make_sizes_proportional(modules, size_limits):
     # Convert sizes from arbitrary range to 1, 2 ,3
     for module in modules:
+        size_min = size_limits[module.level]['min']
+        size_range = size_limits[module.level]['range']
         if size_range > 0 and size_range < 999999999:
-            print('< ', module.size)
             module.size = int((module.size - size_min) / size_range * 3) + 1
-            print('> ', module.size)
-            print('---')
         else:
             import random # If no module has real size, set it randomly
             module.size = random.choice([1,2,3])
         module.save()
-        _make_sizes_proportional(module.children.all(), size_min, size_range)
+        _make_sizes_proportional(module.children.all(), size_limits)
 
 
 def sync_issues(project, modules_issues, filter_kinds=[]):

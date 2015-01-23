@@ -18,7 +18,7 @@ class IssueInline(admin.TabularInline):
 class ModuleAdmin(MPTTModelAdmin):
     model = Module
     prepopulated_fields = {'slug': ('name',)}
-    list_display = ('slug', 'level', 'project_name')
+    list_display = ('slug', 'level', 'size', 'project_name')
     list_filter = ('project__name', 'level')
     inlines = (IssueInline,)
 
@@ -36,7 +36,7 @@ admin.site.register(IssueKind, IssueKindAdmin)
 
 class DirectoryAdmin(MPTTModelAdmin):
     model = Directory
-    list_display = ('slug', 'level', 'project_name')
+    list_display = ('slug', 'level', 'size', 'project_name')
     list_filter = ('project__name', 'level')
     filter_horizontal = ('modules',)
 
