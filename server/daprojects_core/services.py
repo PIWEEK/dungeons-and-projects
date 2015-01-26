@@ -44,7 +44,7 @@ def _calculate_module_sizes(project):
     _initialize_module_sizes(project.first_level_modules.all(), size_limits)
     _calculate_ranges(size_limits)
     for level, sizes in size_limits.items():
-    _make_sizes_proportional(project.first_level_modules.all(), size_limits)
+        _make_sizes_proportional(project.first_level_modules.all(), size_limits)
 
 
 def _initialize_module_sizes(modules, size_limits):
