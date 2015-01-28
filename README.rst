@@ -1,4 +1,4 @@
-dungeons-and-projects
+Dungeons-and-Projects
 =====================
 
 Visualize technical debt as a fantasy city whose buildings have subterranean dungeons populated by hideous monsters.
@@ -39,7 +39,7 @@ Installation
 Server
 ------
 
-This is a normal Django setup.
+This is a normal Django setup. Only needs python 3.4 and pip.
 
 - Create a database in any supported SQL server (if you omit this step, you can use the default sqlite database and you
   don't need to configure anything else; this is not recommended in production).
@@ -52,6 +52,13 @@ This is a normal Django setup.
 
 - Copy ``server/settings/local.py.example`` to ``local.py``. Set the connection data for your database (if any) and any other
   configuration you need.
+
+- Install requirements::
+
+      pip install -r server/requirements.txt
+
+      (optional, if you want extra development tools)
+      pip install -r server/requirements-devel.txt
 
 - If this is a development environment, run the server with::
 
@@ -67,7 +74,7 @@ This is a normal Django setup.
 Client
 ------
 
-In the future we will probably upload this to PyPi, but now the procedure is
+In the future we will probably upload this to PyPi, but for now the procedure is
 
 - Create a python virtualenv (optional but very recommended).
 
@@ -79,7 +86,33 @@ In the future we will probably upload this to PyPi, but now the procedure is
 
       cd client/daprojects_python; python setup.py install
 
+      (or if you want to develop the library)
+      cd client/daprojects_python; python setup.py develop
+
 - Use the client with::
 
       client/daprojects_cli/daprojects -h
+
+Architecture
+============
+
+The system is divided in many modules, so that each piece is simple and does only one thing, and it's easy to recombine them in different
+ways or to replace some of them to match your needs.
+
+.. image:: docs/architecture.png
+    :scale: 100 %
+    :alt: Architecture
+    :align: center
+
+* **daprojects_core** contains the business logic, in form of Django modules and service functions. You could access all D&P functionality
+  by using only this module.
+
+* **daprojects_api** is a thin wrapper adding a RESTful API to the core, to use the resources and services from a remote HTTP connection.
+
+* **daproject_webapp** is a simple web application that visualizes the data as a fantasy world. Currently is view only with static pages
+  rendered at the server. En un futuro se puede hacer más dinámica y que permita editar los módulos.
+
+* **daprojects_python** a client library to access the REST API easily from python.
+
+* **daprojects_cli** a command line application to browse the data and to initialize and sync projects with the source code analysis.
 
