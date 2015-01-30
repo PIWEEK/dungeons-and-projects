@@ -48,7 +48,7 @@ This is a normal Django setup. Only needs python 3.4 and pip.
 
 - Clone the D&P code::
 
-      git checkout git@github.com:PIWEEK/dungeons-and-projects.git
+      git clone https://github.com/PIWEEK/dungeons-and-projects.git
 
 - Copy ``server/settings/local.py.example`` to ``local.py``. Set the connection data for your database (if any) and any other
   configuration you need.

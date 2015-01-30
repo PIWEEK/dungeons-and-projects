@@ -3,5 +3,20 @@ Template to configure the local Django settings of this installation.
 Copy to local.py and configure as needed.
 """
 
+# Uncomment as necessary
 from .development import *
+#from .deployment import *
+
+
+# Database
+# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'dungeons_and_projects',
+    }
+}
+
+INTERNAL_IPS = ('127.0.0.1',)
 

@@ -64,17 +64,6 @@ ROOT_URLCONF = 'daprojects_webapp.urls'
 
 WSGI_APPLICATION = 'daprojects_webapp.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.7/ref/settings/#databases
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'dungeons_and_projects',
-    }
-}
-
 # Internationalization
 # https://docs.djangoproject.com/en/1.7/topics/i18n/
 
