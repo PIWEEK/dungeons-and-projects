@@ -73,12 +73,13 @@ def _make_sizes_proportional(modules, size_limits):
     for module in modules:
         size_min = size_limits[module.level]['min']
         size_range = size_limits[module.level]['range']
-        if size_range > 0 and size_range < 999999999:
-            module.size = int((module.size - size_min) / size_range * 3) + 1
-        else:
-            import random # If no module has real size, set it randomly
-            module.size = random.choice([1,2,3])
-        module.save()
+        if module.size >= size_min: # FIXME 2: this should be > 0 :-?
+            if size_range > 0 and size_range < 999999999:
+                module.size = int((module.size - size_min) / size_range * 3) + 1
+            else:
+                import random # If no module has real size, set it randomly
+                module.size = random.choice([1,2,3])
+            module.save()
         _make_sizes_proportional(module.children.all(), size_limits)
 
 
