@@ -44,6 +44,7 @@ INSTALLED_APPS = (
     # Third party
     'mptt',
     'rest_framework',
+    'rest_framework.authtoken',
     # Local
     'daprojects_core',
     'daprojects_api',
@@ -82,3 +83,17 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/1.7/howto/static-files/
 
 STATIC_URL = '/static/'
+
+# REST Framework
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',
+    )
+}
+
