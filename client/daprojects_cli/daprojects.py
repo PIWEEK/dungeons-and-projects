@@ -25,6 +25,10 @@ def define_args():
         type=str,
         help='HTTP address of the server (by default http://localhost:8000)',
     )
+    common_parser.add_argument('-t', '--auth_token',
+        type=str,
+        help='Authentication API token',
+    )
 
     parser_initialize_project = subparsers.add_parser('initialize_project', aliases=['init'], parents=[common_parser])
     parser_initialize_project.add_argument('-r', '--source-root',
