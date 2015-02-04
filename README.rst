@@ -60,6 +60,11 @@ This is a normal Django setup. Only needs python 3.4 and pip.
       (optional, if you want extra development tools)
       pip install -r server/requirements-devel.txt
 
+- Initialize the database and create the first user with::
+
+      python manage.py syncdb
+      python manage.py createsuperuser
+
 - If this is a development environment, run the server with::
 
       python manage.py runserver
@@ -70,6 +75,9 @@ This is a normal Django setup. Only needs python 3.4 and pip.
 
   and set all configuration needed for deployment, as indicated in the Django manual https://docs.djangoproject.com/en/1.7/howto/deployment/checklist/.
   Then put it under your favourite application server with WSGI protocol (nginx, apache or the like).
+
+- Log in the admin site (<your-site>/admin/) with the user you just created. Now you can create more users if you want. Create
+  an auth token for each user you want to be able to use the API client.
 
 Client
 ------
@@ -89,9 +97,28 @@ In the future we will probably upload this to PyPi, but for now the procedure is
       (or if you want to develop the library)
       cd client/daprojects_python; python setup.py develop
 
-- Use the client with::
+- Use the client with the ``daprojects.py`` command. You can call the client by adding its directory to your PATH, by CDing to the
+  directory or by giving its full path in the command line::
 
-      client/daprojects_cli/daprojects -h
+      ./client/daprojects_cli/daprojects.py --help
+
+Usage
+=====
+
+- First, log in the admin control panel (/admin in your server) and create a new project. Be sure to remember the project's slug.
+
+- Use the CLI to initialize the directories and modules::
+
+    daprojects.py initialize_project --server <SERVER URL> --auth_token <AUTH TOKEN> --source_root <SOURCE CODE ROOT> <PROJECT SLUG>
+
+- Now you can go the admin again and restructure or delete modules if you want. You should leave the directories untouched.
+
+- Finally, analyze the source code and synchronize issues with::
+
+    daprojects.py sync_issues --server <SERVER URL> --auth_token <AUTH TOKEN> --source_root <SOURCE CODE ROOT> <PROJECT SLUG>
+
+- You can repeat this last step whenever you want to synchronize again. For example, you could code a git hook to run this command
+  whenever you make a push, or a merge to master.
 
 Architecture
 ============

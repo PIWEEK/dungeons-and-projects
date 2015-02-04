@@ -31,7 +31,7 @@ def define_args():
     )
 
     parser_initialize_project = subparsers.add_parser('initialize_project', aliases=['init'], parents=[common_parser])
-    parser_initialize_project.add_argument('-r', '--source-root',
+    parser_initialize_project.add_argument('-r', '--source_root',
         type=str,
         default='.',
         help='Root of the source code directory tree',
@@ -50,7 +50,7 @@ def define_args():
     parser_initialize_project.set_defaults(func=actions.initialize_project)
 
     parser_sync_issues = subparsers.add_parser('sync_issues', aliases=['sync'], parents=[common_parser])
-    parser_sync_issues.add_argument('-r', '--source-root',
+    parser_sync_issues.add_argument('-r', '--source_root',
         type=str,
         default='.',
         help='Root of the source code directory tree',
