@@ -27,7 +27,11 @@ Features
 - Store defects and display them as monsters in the dungeons beneath the module buildings.
 
 - By default there is a tool to initialize a new project, reading the tree structure of your code, and other one that
-  scans source files looking for "TODO", "FIXME" and "NOTE" comments, creating a monster for each one.
+  scans source files looking for "TODO", "FIXME" and "NOTE" comments, creating a monster for each one. You can optionally
+  set the "level" of the monster by adding a number between 1 and 5 to the comment::
+
+    # FIXME 1: this variable should have a more descriptive name
+    # FIXME 5: argh! please anyone fix this horrible mess
 
 - But there is a complete API REST that allows you to access all data and display any way you want, or to define you
   own methods of code analysis (you can connect a linter, a code complexity analysis tool, link with your version control
