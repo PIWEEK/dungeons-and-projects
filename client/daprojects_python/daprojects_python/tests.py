@@ -12,6 +12,7 @@ class TestClient(unittest.TestCase):
 
     def test_set_base_url(self):
         client.set_host('https://example.com:9090')
+        client.set_auth_token('some_token')
 
         with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
@@ -20,10 +21,14 @@ class TestClient(unittest.TestCase):
 
             some_resources = client.list_resources(client.base_url + '/some_resources/')
 
-            mock_requests_get.assert_called_once_with('https://example.com:9090/api/v1/some_resources/')
+            mock_requests_get.assert_called_once_with(
+                'https://example.com:9090/api/v1/some_resources/',
+                headers={'Authorization': 'Token some_token'},
+            )
             self.assertEqual(len(some_resources), 0)
 
         client.set_host('http://localhost:8000')
+        client.set_auth_token('')
 
     def test_error_checking(self):
         with patch('daprojects_python.client.requests.get') as mock_requests_get:
@@ -53,7 +58,10 @@ class TestClient(unittest.TestCase):
 
             some_resource = client.retrieve_resource(client.base_url + '/some_resources/1/', SomeResource)
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/some_resources/1/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/some_resources/1/',
+                headers={'Authorization': 'Token '},
+            )
             self.assertTrue(isinstance(some_resource, SomeResource))
             self.assertEqual(some_resource.some_method(), 66 + 99)
 
@@ -71,7 +79,10 @@ class TestProjects(unittest.TestCase):
 
             projects = resources.list_projects()
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/projects/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(len(projects), 2)
             self.assertEqual(projects[0].url, 'http://localhost:8000/api/v1/projects/1/')
@@ -91,7 +102,10 @@ class TestProjects(unittest.TestCase):
 
             project = resources.find_project("test-project-1")
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/?slug=test-project-1')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/projects/?slug=test-project-1',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(project.url, 'http://localhost:8000/api/v1/projects/1/')
             self.assertEqual(project.name, 'Test Project 1')
@@ -106,7 +120,10 @@ class TestProjects(unittest.TestCase):
 
             project = resources.retrieve_project("http://localhost:8000/api/v1/projects/1/")
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/projects/1/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/projects/1/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(project.url, 'http://localhost:8000/api/v1/projects/1/')
             self.assertEqual(project.name, 'Test Project 1')
@@ -147,7 +164,7 @@ class TestProjects(unittest.TestCase):
 
             mock_requests_post.assert_called_once_with(
                 'http://localhost:8000/api/v1/projects/1/initialize/',
-                headers={'content-type': 'application/json'},
+                headers={'content-type': 'application/json', 'Authorization': 'Token '},
                 data=json.dumps(tree_structure),
             )
 
@@ -204,7 +221,7 @@ class TestProjects(unittest.TestCase):
 
             mock_requests_post.assert_called_once_with(
                 'http://localhost:8000/api/v1/projects/1/sync_issues/',
-                headers={'content-type': 'application/json'},
+                headers={'content-type': 'application/json', 'Authorization': 'Token '},
                 data=json.dumps(module_structure),
             )
 
@@ -230,7 +247,10 @@ class TestModules(unittest.TestCase):
 
             modules = resources.list_modules()
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/modules/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/modules/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(len(modules), 2)
             self.assertEqual(modules[0].url, 'http://localhost:8000/api/v1/modules/1/')
@@ -260,7 +280,10 @@ class TestModules(unittest.TestCase):
 
             module = resources.retrieve_module("http://localhost:8000/api/v1/modules/1/")
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/modules/1/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/modules/1/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(module.url, 'http://localhost:8000/api/v1/modules/1/')
             self.assertEqual(module.project, 'http://localhost:8000/api/v1/projects/1/')
@@ -322,7 +345,10 @@ class TestIssueKinds(unittest.TestCase):
 
             issue_kinds = resources.list_issue_kinds()
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/issue_kinds/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/issue_kinds/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(len(issue_kinds), 2)
             self.assertEqual(issue_kinds[0].url, 'http://localhost:8000/api/v1/issue_kinds/1/')
@@ -338,7 +364,10 @@ class TestIssueKinds(unittest.TestCase):
 
             issue_kind = resources.retrieve_issue_kind("http://localhost:8000/api/v1/issue_kinds/1/")
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/issue_kinds/1/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/issue_kinds/1/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(issue_kind.url, 'http://localhost:8000/api/v1/issue_kinds/1/')
             self.assertEqual(issue_kind.name, 'Test IssueKind 1')
@@ -363,7 +392,10 @@ class TestIssues(unittest.TestCase):
 
             issues = resources.list_issues()
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/issues/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/issues/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(len(issues), 2)
             self.assertEqual(issues[0].url, 'http://localhost:8000/api/v1/issues/1/')
@@ -391,7 +423,10 @@ class TestIssues(unittest.TestCase):
 
             issue = resources.retrieve_issue("http://localhost:8000/api/v1/issues/1/")
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/issues/1/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/issues/1/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(issue.url, 'http://localhost:8000/api/v1/issues/1/')
             self.assertEqual(issue.module, 'http://localhost:8000/api/v1/modules/1/')
@@ -436,7 +471,10 @@ class TestDirectories(unittest.TestCase):
 
             directories = resources.list_directories()
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/directories/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/directories/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(len(directories), 2)
             self.assertEqual(directories[0].url, 'http://localhost:8000/api/v1/directories/1/')
@@ -460,7 +498,10 @@ class TestDirectories(unittest.TestCase):
 
             directory = resources.retrieve_directory("http://localhost:8000/api/v1/directories/1/")
 
-            mock_requests_get.assert_called_once_with('http://localhost:8000/api/v1/directories/1/')
+            mock_requests_get.assert_called_once_with(
+                'http://localhost:8000/api/v1/directories/1/',
+                headers={'Authorization': 'Token '},
+            )
 
             self.assertEqual(directory.url, 'http://localhost:8000/api/v1/directories/1/')
             self.assertEqual(directory.project, 'http://localhost:8000/api/v1/projects/1/')
