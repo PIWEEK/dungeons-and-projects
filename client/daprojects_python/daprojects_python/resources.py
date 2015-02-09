@@ -1,66 +1,72 @@
-from . import client
+
+from .client import APIClient, APIResourceList, APIResource
+
+class DAProjectsAPI():
+
+    def __init__(self, *args, **kwargs):
+        client = APIClient(*args, **kwargs)
+        self.projects = Projects(client)
+        self.modules = Modules(client)
+        self.issue_kinds = IssueKinds(client)
+        self.issues = Issues(client)
+        self.directories = Directories(client)
 
 
-# Projects
+class Projects(APIResourceList):
+    resource_path = '/projects/'
 
-def list_projects():
-    return client.list_resources(client.base_url + '/projects/')
+    def list(self):
+        return self._list()
 
+    def find_by_slug(self, project_slug):
+        return self._find_one({'slug': project_slug})
 
-def find_project(project_slug):
-    projects = client.list_resources(client.base_url + '/projects/?slug={}'.format(project_slug))
-    return projects[0] if projects else None
+    def retrieve(self, project_url):
+        return self._retrieve(project_url)
 
+    def initialize(self, project_url, tree_structure):
+        return self._resource_action(project_url, 'initialize/', tree_structure)
 
-def retrieve_project(project_url):
-    return client.retrieve_resource(project_url)
-
-
-def initialize_project(project_url, tree_structure):
-    client.resource_action(project_url + 'initialize/', tree_structure)
-
-
-def sync_issues(project_url, module_structure):
-    client.resource_action(project_url + 'sync_issues/', module_structure)
+    def sync_issues(self, project_url, module_structure):
+        return self._resource_action(project_url, 'sync_issues/', module_structure)
 
 
-# Modules
+class Modules(APIResourceList):
+    resource_path = '/modules/'
 
-def list_modules():
-    return client.list_resources(client.base_url + '/modules/')
+    def list(self):
+        return self._list()
 
-
-def retrieve_module(module_url):
-    return client.retrieve_resource(module_url)
-
-
-# Issue kinds
+    def retrieve(self, module_url):
+        return self._retrieve(module_url)
 
 
-def list_issue_kinds():
-    return client.list_resources(client.base_url + '/issue_kinds/')
+class IssueKinds(APIResourceList):
+    resource_path = '/issue_kinds/'
+
+    def list(self):
+        return self._list()
+
+    def retrieve(self, issue_kind_url):
+        return self._retrieve(issue_kind_url)
 
 
-def retrieve_issue_kind(issue_kind_url):
-    return client.retrieve_resource(issue_kind_url)
+class Issues(APIResourceList):
+    resource_path = '/issues/'
+
+    def list(self):
+        return self._list()
+
+    def retrieve(self, issue_url):
+        return self._retrieve(issue_url)
 
 
-# Issues
+class Directories(APIResourceList):
+    resource_path = '/directories/'
 
-def list_issues():
-    return client.list_resources(client.base_url + '/issues/')
+    def list(self):
+        return self._list()
 
-
-def retrieve_issue(issue_url):
-    return client.retrieve_resource(issue_url)
-
-
-# Directories
-
-def list_directories():
-    return client.list_resources(client.base_url + '/directories/')
-
-
-def retrieve_directory(directory_url):
-    return client.retrieve_resource(directory_url)
+    def retrieve(self, directory_url):
+        return self._retrieve(directory_url)
 

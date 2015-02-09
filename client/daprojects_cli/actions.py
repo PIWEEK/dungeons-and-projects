@@ -1,31 +1,25 @@
-from daprojects_python import client, resources
+from daprojects_python import DAProjectsAPI
 
-import code_analyzer
+from code_analyzer import SourceTreeAnalyzer, SourceCodeAnalyzer
 
 
 def initialize_project(args):
-    if args.server:
-        client.set_host(args.server)
-    if args.auth_token:
-        client.set_auth_token(args.auth_token)
-    project = resources.find_project(args.project)
+    api = DAProjectsAPI(host_url=args.server, auth_token=args.auth_token)
+    project = api.projects.find_by_slug(args.project)
     if project:
-        tree_structure = code_analyzer.read_tree_structure(args.source_root, args.depth, args.ignore)
-        resources.initialize_project(project.url, tree_structure)
+        tree_analyzer = SourceTreeAnalyzer(args.source_root, args.depth, args.ignore)
+        api.projects.initialize(project.url, tree_analyzer.tree_structure)
         print('Project {} initialized'.format(project.name))
     else:
         print('Cannot found a project with slug {}'.format(args.project))
 
 
 def sync_issues(args):
-    if args.server:
-        client.set_host(args.server)
-    if args.auth_token:
-        client.set_auth_token(args.auth_token)
-    project = resources.find_project(args.project)
+    api = DAProjectsAPI(host_url=args.server, auth_token=args.auth_token)
+    project = api.projects.find_by_slug(args.project)
     if project:
-        module_structure = code_analyzer.find_module_issues(project, args.source_root)
-        resources.sync_issues(project.url, module_structure)
+        code_analyzer = SourceCodeAnalyzer(project, args.source_root, api)
+        api.projects.sync_issues(project.url, code_analyzer.module_structure)
         print('Project {} synchronized'.format(project.name))
     else:
         print('Cannot found a project with slug {}'.format(args.project))

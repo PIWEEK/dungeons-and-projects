@@ -4,49 +4,51 @@ from unittest.mock import Mock, patch
 from collections import namedtuple
 from requests import exceptions
 
-from . import client
-from . import resources
+from .client import APIClient, APIResource
+from .resources import DAProjectsAPI
 
 
 class TestClient(unittest.TestCase):
 
-    def test_set_base_url(self):
-        client.set_host('https://example.com:9090')
-        client.set_auth_token('some_token')
+    def test_set_base_url_and_token(self):
+        client = APIClient(
+            host_url = 'https://example.com:9090',
+            auth_token = 'some_token',
+        )
 
         with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = []
             mock_requests_get.return_value = mock_response
 
-            some_resources = client.list_resources(client.base_url + '/some_resources/')
+            some_resources = client.list_resources(client.base_url + '/some_resources/', APIResource)
 
             mock_requests_get.assert_called_once_with(
                 'https://example.com:9090/api/v1/some_resources/',
+                params={},
                 headers={'Authorization': 'Token some_token'},
             )
             self.assertEqual(len(some_resources), 0)
 
-        client.set_host('http://localhost:8000')
-        client.set_auth_token('')
-
     def test_error_checking(self):
+        client = APIClient()
         with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.raise_for_status.side_effect = exceptions.RequestException('Not Found')
             mock_requests_get.return_value = mock_response
 
             with self.assertRaises(exceptions.RequestException):
-                some_resources = client.list_resources(client.base_url + '/some_resources/')
+                some_resources = client.list_resources(client.base_url + '/some_resources/', APIResource)
 
             mock_response.raise_for_status.assert_called_once()
 
     def test_resource_subclass(self):
 
-        class SomeResource(client.Resource):
+        class SomeResource(APIResource):
             def some_method(self):
                 return self.a + self.b
 
+        client = APIClient()
         with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
             mock_response.json.return_value = {
@@ -68,6 +70,28 @@ class TestClient(unittest.TestCase):
 
 class TestProjects(unittest.TestCase):
 
+    def test_set_base_url_and_token(self):
+        with patch('daprojects_python.resources.APIClient') as mock_api_client:
+            daprojects_api = DAProjectsAPI(
+                host_url = 'https://example.com:9090',
+                auth_token = 'some_token',
+            )
+
+            mock_api_client.assert_called_once_with(
+                host_url = 'https://example.com:9090',
+                auth_token = 'some_token',
+            )
+
+        with patch('daprojects_python.resources.APIClient.list_resources') as mock_list_resources:
+            daprojects_api = DAProjectsAPI(
+                host_url = 'https://example.com:9090',
+                auth_token = 'some_token',
+            )
+            some_resources = daprojects_api.projects.list()
+
+            mock_list_resources.assert_called_once_with('https://example.com:9090/api/v1/projects/', APIResource, {})
+
+
     def test_list_projects(self):
         with patch('daprojects_python.client.requests.get') as mock_requests_get:
             mock_response = Mock()
@@ -77,10 +101,12 @@ class TestProjects(unittest.TestCase):
             ]
             mock_requests_get.return_value = mock_response
 
-            projects = resources.list_projects()
+            daprojects_api = DAProjectsAPI()
+            projects = daprojects_api.projects.list()
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/projects/',
+                params={},
                 headers={'Authorization': 'Token '},
             )
 
@@ -100,10 +126,12 @@ class TestProjects(unittest.TestCase):
             mock_response.json.return_value = [self._sample_project(1)]
             mock_requests_get.return_value = mock_response
 
-            project = resources.find_project("test-project-1")
+            daprojects_api = DAProjectsAPI()
+            project = daprojects_api.projects.find_by_slug("test-project-1")
 
             mock_requests_get.assert_called_once_with(
-                'http://localhost:8000/api/v1/projects/?slug=test-project-1',
+                'http://localhost:8000/api/v1/projects/',
+                params={'slug': 'test-project-1'},
                 headers={'Authorization': 'Token '},
             )
 
@@ -118,7 +146,8 @@ class TestProjects(unittest.TestCase):
             mock_response.json.return_value = self._sample_project(1)
             mock_requests_get.return_value = mock_response
 
-            project = resources.retrieve_project("http://localhost:8000/api/v1/projects/1/")
+            daprojects_api = DAProjectsAPI()
+            project = daprojects_api.projects.retrieve("http://localhost:8000/api/v1/projects/1/")
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/projects/1/',
@@ -160,7 +189,8 @@ class TestProjects(unittest.TestCase):
                 }
             ]
             """
-            resources.initialize_project("http://localhost:8000/api/v1/projects/1/", tree_structure)
+            daprojects_api = DAProjectsAPI()
+            daprojects_api.projects.initialize("http://localhost:8000/api/v1/projects/1/", tree_structure)
 
             mock_requests_post.assert_called_once_with(
                 'http://localhost:8000/api/v1/projects/1/initialize/',
@@ -217,7 +247,8 @@ class TestProjects(unittest.TestCase):
                 }
             ]
             """
-            resources.sync_issues("http://localhost:8000/api/v1/projects/1/", module_structure)
+            daprojects_api = DAProjectsAPI()
+            project = daprojects_api.projects.sync_issues("http://localhost:8000/api/v1/projects/1/", module_structure)
 
             mock_requests_post.assert_called_once_with(
                 'http://localhost:8000/api/v1/projects/1/sync_issues/',
@@ -245,10 +276,12 @@ class TestModules(unittest.TestCase):
             ]
             mock_requests_get.return_value = mock_response
 
-            modules = resources.list_modules()
+            daprojects_api = DAProjectsAPI()
+            modules = daprojects_api.modules.list()
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/modules/',
+                params={},
                 headers={'Authorization': 'Token '},
             )
 
@@ -278,7 +311,8 @@ class TestModules(unittest.TestCase):
             mock_response.json.return_value = self._sample_module(1)
             mock_requests_get.return_value = mock_response
 
-            module = resources.retrieve_module("http://localhost:8000/api/v1/modules/1/")
+            daprojects_api = DAProjectsAPI()
+            module = daprojects_api.modules.retrieve("http://localhost:8000/api/v1/modules/1/")
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/modules/1/',
@@ -296,25 +330,25 @@ class TestModules(unittest.TestCase):
             self.assertEqual(module.issues, [])
 
     def test_module_project(self):
-        module = client.Resource(**self._sample_module(1, project_id=1))
+        module = APIResource(**self._sample_module(1, project_id=1))
         self.assertEqual(module.project, 'http://localhost:8000/api/v1/projects/1/')
 
     def test_module_parent(self):
-        module = client.Resource(**self._sample_module(2, parent_id=1))
+        module = APIResource(**self._sample_module(2, parent_id=1))
         self.assertEqual(module.parent, 'http://localhost:8000/api/v1/modules/1/')
 
     def test_module_children(self):
-        module = client.Resource(**self._sample_module(1, child_ids=[2, 3, 4]))
+        module = APIResource(**self._sample_module(1, child_ids=[2, 3, 4]))
         for i, child_id in enumerate([2, 3, 4]):
             self.assertEqual(module.children[i], 'http://localhost:8000/api/v1/modules/{}/'.format(child_id))
 
     def test_module_directories(self):
-        module = client.Resource(**self._sample_module(1, directory_ids=[2, 3, 4]))
+        module = APIResource(**self._sample_module(1, directory_ids=[2, 3, 4]))
         for i, directory_id in enumerate([2, 3, 4]):
             self.assertEqual(module.directories[i], 'http://localhost:8000/api/v1/directories/{}/'.format(directory_id))
 
     def test_module_issues(self):
-        module = client.Resource(**self._sample_module(1, issue_ids=[2, 3, 4]))
+        module = APIResource(**self._sample_module(1, issue_ids=[2, 3, 4]))
         for i, issue_id in enumerate([2, 3, 4]):
             self.assertEqual(module.issues[i], 'http://localhost:8000/api/v1/issues/{}/'.format(issue_id))
 
@@ -343,10 +377,12 @@ class TestIssueKinds(unittest.TestCase):
             ]
             mock_requests_get.return_value = mock_response
 
-            issue_kinds = resources.list_issue_kinds()
+            daprojects_api = DAProjectsAPI()
+            issue_kinds = daprojects_api.issue_kinds.list()
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/issue_kinds/',
+                params={},
                 headers={'Authorization': 'Token '},
             )
 
@@ -362,7 +398,8 @@ class TestIssueKinds(unittest.TestCase):
             mock_response.json.return_value = self._sample_issue_kind(1)
             mock_requests_get.return_value = mock_response
 
-            issue_kind = resources.retrieve_issue_kind("http://localhost:8000/api/v1/issue_kinds/1/")
+            daprojects_api = DAProjectsAPI()
+            issue_kind = daprojects_api.issue_kinds.retrieve("http://localhost:8000/api/v1/issue_kinds/1/")
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/issue_kinds/1/',
@@ -390,10 +427,12 @@ class TestIssues(unittest.TestCase):
             ]
             mock_requests_get.return_value = mock_response
 
-            issues = resources.list_issues()
+            daprojects_api = DAProjectsAPI()
+            issues = daprojects_api.issues.list()
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/issues/',
+                params={},
                 headers={'Authorization': 'Token '},
             )
 
@@ -421,7 +460,8 @@ class TestIssues(unittest.TestCase):
             mock_response.json.return_value = self._sample_issue(1)
             mock_requests_get.return_value = mock_response
 
-            issue = resources.retrieve_issue("http://localhost:8000/api/v1/issues/1/")
+            daprojects_api = DAProjectsAPI()
+            issue = daprojects_api.issues.retrieve("http://localhost:8000/api/v1/issues/1/")
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/issues/1/',
@@ -438,11 +478,11 @@ class TestIssues(unittest.TestCase):
             self.assertEqual(issue.description, 'Issue description 1')
 
     def test_issue_module(self):
-        issue = client.Resource(**self._sample_issue(1, module_id=1))
+        issue = APIResource(**self._sample_issue(1, module_id=1))
         self.assertEqual(issue.module, 'http://localhost:8000/api/v1/modules/1/')
 
     def test_issue_issue_kind(self):
-        issue = client.Resource(**self._sample_issue(1, issue_kind_id=1))
+        issue = APIResource(**self._sample_issue(1, issue_kind_id=1))
         self.assertEqual(issue.kind, 'http://localhost:8000/api/v1/issue_kinds/1/')
 
     def _sample_issue(self, issue_id, module_id=1, issue_kind_id=1):
@@ -469,10 +509,12 @@ class TestDirectories(unittest.TestCase):
             ]
             mock_requests_get.return_value = mock_response
 
-            directories = resources.list_directories()
+            daprojects_api = DAProjectsAPI()
+            directories = daprojects_api.directories.list()
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/directories/',
+                params={},
                 headers={'Authorization': 'Token '},
             )
 
@@ -496,7 +538,8 @@ class TestDirectories(unittest.TestCase):
             mock_response.json.return_value = self._sample_directory(1)
             mock_requests_get.return_value = mock_response
 
-            directory = resources.retrieve_directory("http://localhost:8000/api/v1/directories/1/")
+            daprojects_api = DAProjectsAPI()
+            directory = daprojects_api.directories.retrieve("http://localhost:8000/api/v1/directories/1/")
 
             mock_requests_get.assert_called_once_with(
                 'http://localhost:8000/api/v1/directories/1/',
@@ -511,20 +554,20 @@ class TestDirectories(unittest.TestCase):
             self.assertEqual(directory.modules, [])
 
     def test_directory_project(self):
-        directory = client.Resource(**self._sample_directory(1, project_id=1))
+        directory = APIResource(**self._sample_directory(1, project_id=1))
         self.assertEqual(directory.project, 'http://localhost:8000/api/v1/projects/1/')
 
     def test_directory_parent(self):
-        directory = client.Resource(**self._sample_directory(2, parent_id=1))
+        directory = APIResource(**self._sample_directory(2, parent_id=1))
         self.assertEqual(directory.parent, 'http://localhost:8000/api/v1/directories/1/')
 
     def test_directory_children(self):
-        directory = client.Resource(**self._sample_directory(1, child_ids=[2, 3, 4]))
+        directory = APIResource(**self._sample_directory(1, child_ids=[2, 3, 4]))
         for i, child_id in enumerate([2, 3, 4]):
             self.assertEqual(directory.children[i], 'http://localhost:8000/api/v1/directories/{}/'.format(child_id))
 
     def test_directory_modules(self):
-        directory = client.Resource(**self._sample_directory(1, module_ids=[2, 3, 4]))
+        directory = APIResource(**self._sample_directory(1, module_ids=[2, 3, 4]))
         for i, module_id in enumerate([2, 3, 4]):
             self.assertEqual(directory.modules[i], 'http://localhost:8000/api/v1/modules/{}/'.format(module_id))
 
